@@ -1,0 +1,176 @@
+run_name: expert_iteration_round1
+output_dir: outputs/expert_iteration_round1
+seed: 42
+
+runtime:
+  profile: laptop
+  generation_verification_mode: sequential
+  generation: {mode: isolated, batch_size: 100, persistent: false}
+  verification: {lifecycle: stage, workers: 2, persistent: false}
+  memory: {streaming: true, max_queue_size: 32}
+  cache: {backend: sqlite}
+  debug: {save_full_source_on_failure_only: true}
+  memory_guard: {enabled: true, warning_ratio: 0.85, critical_ratio: 0.95}
+
+data:
+  train_path: data/processed/lean_workbook_verified_v2/train.jsonl
+  eval_path: data/processed/lean_workbook_verified_v2/eval.jsonl
+  discovery_path: data/processed/lean_workbook_verified_v2/discovery.jsonl
+  monitor_path: outputs/expert_iteration_round1/inputs/verified/monitor.jsonl
+  benchmark_path: null
+  overlap_policy: error
+
+initial_model:
+  base_model: models/Qwen2.5-1.5B-Instruct
+  sft_adapter: outputs/qwen25_1_5b_clean_m0_verified_v2/initial_sft/checkpoint
+  tokenizer: outputs/qwen25_1_5b_clean_m0_verified_v2/initial_sft/merged_anchor
+  skip_initial_sft: true
+  checkpoint_strategy: fixed_anchor
+  merged_sft0_path: outputs/qwen25_1_5b_clean_m0_verified_v2/initial_sft/merged_anchor
+
+iterations:
+  max_iterations: 1
+  minimum_new_proofs_to_train: 50
+  append_discovery_size_if_insufficient: 0
+  terminate_if_new_proofs_below: 0
+  stop_when_training_skipped: true
+
+discovery:
+  statements_per_iteration: 500
+  batch_statements: 100
+  max_consecutive_zero_success_rounds: 2
+  hard_archive_after_rounds: 3
+  solved_easy_success_ratio: 1.0
+  pool_mix: {new: 1.0, frontier: 0.0, unsolved: 0.0, audit: 0.0}
+  sampling_budget: {new: 4, frontier: 4, unsolved: 4, audit: 2}
+  iteration_bucket_counts:
+    0: {new: 500, frontier: 0, unsolved: 0, audit: 0}
+  iteration_sampling_budget:
+    0: {new: 4, frontier: 4, unsolved: 4, audit: 2}
+  iteration_generation_seeds:
+    0: 4401
+  generation:
+    backend: vllm
+    samples_per_statement: 4
+    temperature: 0.8
+    top_p: 0.95
+    max_new_tokens: 256
+    batch_size: 2
+    load_in_4bit: false
+    max_model_len: 1280
+    gpu_memory_utilization: 0.65
+    enforce_eager: true
+    kv_cache_memory_bytes: 134217728
+
+verification:
+  lean_project_path: lean_project
+  imports: [Mathlib]
+  num_workers: 2
+  queue_maxsize: 32
+  timeout_seconds: 30
+  warmup_timeout_seconds: 900
+  heartbeat_interval_seconds: 5
+  heartbeat_timeout_seconds: 30
+  max_worker_restarts: 3
+  max_task_retries: 1
+  shutdown_timeout_seconds: 10
+  reject_sorry: true
+  reject_admit: true
+  reject_axiom: true
+  use_cache: true
+
+proof_bank:
+  max_verified_proofs_per_statement: 3
+  max_training_proofs_per_statement: 1
+  selection_strategy: random_verified
+
+train_mix_first_iteration:
+  anchor: 0.85
+  historical_expert: 0.0
+  current_expert: 0.15
+
+train_mix:
+  anchor: 0.85
+  historical_expert: 0.0
+  current_expert: 0.15
+
+category_sampling: {enabled: false}
+
+training:
+  use_qlora: true
+  lora_rank: 32
+  lora_alpha: 64
+  lora_dropout: 0.05
+  learning_rate: 2.0e-5
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 16
+  gradient_checkpointing: true
+  max_seq_length: 1024
+  packing: true
+  logging_steps: 10
+  optimizer: paged_adamw_8bit
+  weight_decay: 0.01
+  warmup_ratio: 0.03
+  max_grad_norm: 1.0
+  eval_strategy: epoch
+  eval_steps: null
+  save_strategy: epoch
+  save_steps: 100
+  load_best_model_at_end: true
+  metric_for_best_model: eval_loss
+  greater_is_better: false
+
+execution:
+  isolate_gpu_stages: true
+  verify_after_each_generation_batch: true
+  generation_timeout_seconds: 7200
+  training_timeout_seconds: 21600
+  flashinfer_sampler: true
+
+precheck:
+  enabled: true
+  fail_fast: true
+  lean_smoke_test: {enabled: true, required_pass_rate: 1.0}
+  pantograph_smoke_test: {enabled: true, required_pass_rate: 1.0}
+  reference_roundtrip:
+    enabled: true
+    train_samples: 10
+    eval_samples: 10
+    benchmark_samples: 0
+    required_pass_rate: 1.0
+  generation_smoke_test:
+    enabled: true
+    statements: 10
+    samples_per_statement: 2
+    max_length_finish_ratio: 0.30
+    minimum_extraction_success_rate: 0.90
+  checkpoint_check:
+    enabled: true
+    require_adapter_or_merged_checkpoint: true
+
+monitor:
+  enabled: true
+  pass_k: [1, 4]
+  samples_per_statement: 4
+  fixed_generation_seed: true
+  generation_seed: 3001
+  evaluate_initial_checkpoint: true
+
+benchmark:
+  enabled: false
+  run_mode: manual
+  pass_k: [1, 4]
+  samples_per_statement: 4
+  fixed_generation_seed: true
+  generation_seed: 4001
+
+checkpoint_selection:
+  metric: latest_completed
+
+stopping:
+  min_discovery_new_solved_ratio: 0.02
+  max_eval_loss_degradation: 0.10
+  min_monitor_improvement: 0.002
+  patience: 1

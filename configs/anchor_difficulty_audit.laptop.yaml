@@ -1,0 +1,29 @@
+runtime:
+  profile: laptop
+
+model:
+  fixed_anchor_checkpoint: outputs/qwen25_1_5b_clean_m0_verified_v2/initial_sft/merged_anchor
+
+anchor_difficulty:
+  static_audit_all: true
+  static_rule_version: anchor_static_v2
+  dynamic_profile_size: 900
+  samples_per_statement: 4
+  generation_seed: 42001
+  static_bucket_samples:
+    easy: 300
+    medium: 300
+    hard: 300
+  expand_dynamic_if_correlation_below: 0.20
+  expanded_samples_per_unprofiled_statement: 2
+
+generation:
+  temperature: 0.8
+  top_p: 0.95
+  max_new_tokens: 256
+
+verification:
+  num_workers: 2
+  timeout_seconds: 30
+  cache: sqlite
+

@@ -1,0 +1,97 @@
+run_name: qwen_1_5b_two_round_smoke_20260718
+output_dir: outputs/expert_iteration/qwen_1_5b_two_round_smoke_20260718
+seed: 20260718
+
+data:
+  train_path: outputs/expert_iteration/smoke_inputs/train.jsonl
+  eval_path: outputs/expert_iteration/smoke_inputs/eval.jsonl
+  discovery_path: outputs/expert_iteration/smoke_inputs/discovery.jsonl
+  monitor_path: null
+  benchmark_path: null
+  overlap_policy: error
+
+initial_model:
+  base_model: models/Qwen2.5-1.5B-Instruct
+  tokenizer: models/Qwen2.5-1.5B-Instruct
+  sft_adapter: null
+  skip_initial_sft: true
+  checkpoint_strategy: continue_adapter
+
+iterations:
+  max_iterations: 2
+  minimum_new_proofs_to_train: 0
+  stop_when_training_skipped: false
+
+discovery:
+  statements_per_iteration: 2
+  max_consecutive_zero_success_rounds: 2
+  hard_archive_after_rounds: 3
+  solved_easy_success_ratio: 1.0
+  pool_mix: {new: 0.50, frontier: 0.20, unsolved: 0.25, audit: 0.05}
+  generation:
+    backend: vllm
+    samples_per_statement: 1
+    temperature: 0.0
+    top_p: 1.0
+    max_new_tokens: 48
+    batch_size: 2
+    load_in_4bit: true
+    max_model_len: 256
+    gpu_memory_utilization: 0.55
+  sampling_budget: {new: 1, frontier: 1, unsolved: 1, audit: 1}
+
+verification:
+  lean_project_path: lean_project
+  imports: [Mathlib]
+  num_workers: 2
+  queue_maxsize: 8
+  timeout_seconds: 300
+  warmup_timeout_seconds: 300
+  reject_sorry: true
+  reject_admit: true
+  reject_axiom: true
+  use_cache: false
+
+proof_bank:
+  max_verified_proofs_per_statement: 2
+  max_training_proofs_per_statement: 1
+  selection_strategy: shortest
+
+train_mix_first_iteration: {anchor: 0.50, historical_expert: 0.0, current_expert: 0.50}
+train_mix: {anchor: 0.50, historical_expert: 0.25, current_expert: 0.25}
+category_sampling: {enabled: false}
+
+training:
+  use_qlora: true
+  lora_rank: 4
+  lora_alpha: 8
+  lora_dropout: 0.0
+  learning_rate: 0.0001
+  num_train_epochs: 1.0
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 1
+  max_seq_length: 256
+  eval_strategy: epoch
+  eval_steps: null
+  save_strategy: epoch
+  save_steps: 1
+  load_best_model_at_end: false
+  metric_for_best_model: eval_loss
+  greater_is_better: false
+
+monitor:
+  enabled: false
+
+benchmark:
+  enabled: false
+  run_mode: final_only
+
+checkpoint_selection:
+  metric: latest_completed
+
+stopping:
+  min_discovery_new_solved_ratio: 0.0
+  max_eval_loss_degradation: 1.0
+  min_monitor_improvement: 0.0
+  patience: 2

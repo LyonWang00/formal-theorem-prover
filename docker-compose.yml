@@ -1,0 +1,39 @@
+services:
+  prover-dev:
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_ID: ${HOST_UID:-1000}
+        GROUP_ID: ${HOST_GID:-1000}
+    image: lean-math-prover:4.29.1-pantograph-0.3.15
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    shm_size: "4gb"
+    environment:
+      LEAN_BACKEND: pantograph
+      LEAN_PROJECT_PATH: /opt/lean-project
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      MODEL_BASE_URL: ${MODEL_BASE_URL:-}
+      MODEL_NAME: ${MODEL_NAME:-}
+    volumes:
+      - ${PROJECT_DIR:-.}:/workspace
+      - uv-cache:/home/prover/.cache/uv
+      - elan-cache:/opt/elan
+      - mathlib-cache:/home/prover/.cache/mathlib
+      - prover-data:/workspace/data
+      - prover-logs:/workspace/logs
+      - prover-models:/workspace/models
+      - prover-checkpoints:/workspace/checkpoints
+
+volumes:
+  uv-cache:
+  elan-cache:
+  mathlib-cache:
+  prover-data:
+  prover-logs:
+  prover-models:
+  prover-checkpoints:

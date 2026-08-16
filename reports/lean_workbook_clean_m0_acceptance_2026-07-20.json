@@ -1,0 +1,87 @@
+{
+  "date": "2026-07-20",
+  "status": "passed_with_expert_training_threshold_skip",
+  "large_discovery_verification_allowed": true,
+  "expert_training_requires_minimum_new_proofs": 50,
+  "environment": {
+    "lean": "4.29.1",
+    "mathlib_commit": "5e932f97dd25535344f80f9dd8da3aab83df0fe6",
+    "environment_hash": "46b005cc84cb6602c278fcfc596e51a03a5b9296bc7fda34f55d86ebfeb2c51a",
+    "assembler_version": "2",
+    "normalization_version": "2"
+  },
+  "raw_audit": {
+    "rows": 25214,
+    "unique_records": 13517,
+    "proved_records": 10434,
+    "disproved_records": 3083,
+    "proof_verified": 7581,
+    "proof_verification_rate": 0.7265669925244393,
+    "quarantined": 5936
+  },
+  "verified_v2": {
+    "train": 3000,
+    "eval": 160,
+    "discovery": 700,
+    "verified_reserve": 3718,
+    "monitor": 32,
+    "benchmark": 96,
+    "role_overlap": 0,
+    "unverified_train": 0,
+    "unverified_eval": 0,
+    "statement_unverified_discovery": 0
+  },
+  "golden_reference": {"passed": 30, "total": 30},
+  "legacy_generation_reverification": {
+    "discovery": {"passed": 19, "total": 1000},
+    "benchmark": {"passed": 2, "total": 384},
+    "overall": {"passed": 21, "total": 1384}
+  },
+  "clean_m0": {
+    "train_loss": 0.8113,
+    "eval_loss": 0.3515,
+    "eval_mean_token_accuracy": 0.9003,
+    "steps": 188,
+    "truncated_examples": 0,
+    "unattested_examples": 0,
+    "merged_safe": true
+  },
+  "checkpoint_equivalence": {
+    "passed": true,
+    "base_adapter_different": 10,
+    "adapter_merged_exact": 8,
+    "adapter_merged_first_token": 10,
+    "merged_vllm_exact": 2,
+    "merged_vllm_first_token": 10
+  },
+  "train_memorization_50": {
+    "pass_at_1": 0.08,
+    "pass_at_4": 0.26,
+    "extraction_success_rate": 1.0,
+    "length_finish_ratio": 0.045,
+    "repetitive_output_ratio": 0.045,
+    "multiple_proof_ratio": 0.005
+  },
+  "discovery_bootstrap_30": {
+    "pass_at_1": 0.16666666666666666,
+    "pass_at_4": 0.5333333333333333,
+    "extraction_success_rate": 1.0,
+    "length_finish_ratio": 0.03333333333333333,
+    "repetitive_output_ratio": 0.025,
+    "multiple_proof_ratio": 0.0
+  },
+  "expert_smoke_50": {
+    "statements": 50,
+    "candidates": 200,
+    "successful_candidates": 54,
+    "solved_statements": 24,
+    "proof_bank": 41,
+    "failure_bank": 146,
+    "worker_restarts": {"0": 0, "1": 0},
+    "training_proofs_after_per_statement_cap": 24,
+    "training_skipped": true,
+    "training_skip_reason": "current proofs 24 < minimum 50"
+  },
+  "tests": {"passed": 89, "skipped": 1, "failed": 0},
+  "resource_leaks_after_run": 0
+}

@@ -1,0 +1,31 @@
+experiment: b2_expanded_validation
+runtime:
+  profile: laptop
+generation_verification_mode: sequential
+generation:
+  lifecycle: isolated
+  statement_batch_size: 100
+  do_sample: true
+  temperature: 0.8
+  top_p: 0.95
+  max_new_tokens: 256
+  samples_per_statement: 4
+verification:
+  lifecycle: stage
+  workers: 2
+  timeout_seconds: 30
+  max_queue_size: 32
+  cache_backend: sqlite
+seeds:
+  primary: 20260730
+  replication: 20260803
+  derivation: isolated_shard_batch_offset_v1
+models:
+  M0: outputs/qwen25_1_5b_clean_m0_verified_v2/initial_sft/merged_anchor
+  B2_base: outputs/qwen25_1_5b_clean_m0_verified_v2/initial_sft/merged_anchor
+  B2_adapter: outputs/expert_sft_no_replacement_ablation/checkpoints/B2_anchor_expert_1000/step_63
+forbidden:
+  train: true
+  update_proof_bank: true
+  run_round2: true
+  create_m2: true

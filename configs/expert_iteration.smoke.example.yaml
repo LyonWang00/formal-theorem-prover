@@ -1,0 +1,99 @@
+run_name: expert_iteration_smoke
+output_dir: outputs/expert_iteration/expert_iteration_smoke
+seed: 42
+
+runtime:
+  profile: laptop
+  generation_verification_mode: sequential
+  generation: {mode: isolated, batch_size: 100, persistent: false}
+  verification: {lifecycle: stage, workers: 2, persistent: false}
+  memory: {streaming: true, max_queue_size: 32}
+  cache: {backend: sqlite}
+  debug: {save_full_source_on_failure_only: true}
+  memory_guard: {enabled: true, warning_ratio: 0.85, critical_ratio: 0.95}
+
+data:
+  train_path: data/processed/smoke_train.jsonl
+  eval_path: data/processed/smoke_eval.jsonl
+  discovery_path: data/processed/smoke_discovery_10.jsonl
+  monitor_path: null
+  benchmark_path: null
+  overlap_policy: error
+
+initial_model:
+  base_model: path/to/base-model
+  sft_adapter: path/to/sft0-adapter
+  skip_initial_sft: true
+  checkpoint_strategy: continue_adapter
+
+iterations:
+  max_iterations: 1
+  # Keep this above the possible smoke discoveries to exercise the full
+  # discovery/verification/data-build path while deliberately skipping GPU training.
+  minimum_new_proofs_to_train: 1000
+  stop_when_training_skipped: false
+
+discovery:
+  batch_statements: 100
+  statements_per_iteration: 10
+  max_consecutive_zero_success_rounds: 2
+  hard_archive_after_rounds: 3
+  solved_easy_success_ratio: 1.0
+  pool_mix: {new: 0.30, frontier: 0.35, unsolved: 0.30, audit: 0.05}
+  generation:
+    backend: transformers
+    samples_per_statement: 2
+    temperature: 0.9
+    top_p: 0.95
+    max_new_tokens: 256
+    batch_size: 2
+    load_in_4bit: true
+  sampling_budget: {new: 2, frontier: 2, unsolved: 2, audit: 1}
+
+verification:
+  lean_project_path: lean_project
+  imports: [Mathlib]
+  num_workers: 2
+  queue_maxsize: 16
+  timeout_seconds: 120
+  warmup_timeout_seconds: 120
+  heartbeat_interval_seconds: 5
+  heartbeat_timeout_seconds: 30
+  max_worker_restarts: 3
+  max_task_retries: 2
+  shutdown_timeout_seconds: 10
+  reject_sorry: true
+  reject_admit: true
+  reject_axiom: true
+  use_cache: true
+
+proof_bank:
+  max_verified_proofs_per_statement: 3
+  max_training_proofs_per_statement: 1
+  selection_strategy: shortest
+
+train_mix_first_iteration: {anchor: 0.65, historical_expert: 0.0, current_expert: 0.35}
+train_mix: {anchor: 0.50, historical_expert: 0.25, current_expert: 0.25}
+category_sampling: {enabled: false}
+
+execution:
+  isolate_gpu_stages: true
+  generation_timeout_seconds: 1800
+  training_timeout_seconds: 3600
+  flashinfer_sampler: true
+
+monitor:
+  enabled: false
+
+benchmark:
+  enabled: false
+  run_mode: final_only
+
+checkpoint_selection:
+  metric: latest_completed
+
+stopping:
+  min_discovery_new_solved_ratio: 0.0
+  max_eval_loss_degradation: 0.10
+  min_monitor_improvement: 0.002
+  patience: 2

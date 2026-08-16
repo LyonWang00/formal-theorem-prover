@@ -1,0 +1,113 @@
+{
+  "contract": {
+    "hash_fields": [
+      "record_hash",
+      "statement_sha256",
+      "proof_sha256"
+    ],
+    "pantograph_verified": [
+      "success",
+      "fail"
+    ],
+    "source_fields": [
+      "source"
+    ]
+  },
+  "external_datasets": {
+    "kimina": {
+      "complete": true,
+      "fail": {
+        "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/kimina_verified_fail.jsonl",
+        "rows": 1439,
+        "sha256": "63708341b83274e9dc7877178c0805a8c8d7ca3d6371b69ddf4adb0bbae25fcc"
+      },
+      "raw": {
+        "bytes": 4360794,
+        "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/raw_data/kimina_raw.parquet",
+        "rows": 24418,
+        "sha256": "68f33cee8d4d69479069117880be096fbfebb01af8c46cee0e54201fb28e1750"
+      },
+      "report_path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/kimina_verification_report.json",
+      "revision": "3009c548d90160d0f5e963d72238610c6732f812",
+      "source": "AI-MO/Kimina-Prover-Promptset",
+      "success": {
+        "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/kimina_verified_success.jsonl",
+        "rows": 22979,
+        "sha256": "0bafd32b0f020e8eaf7686b6b81d0e4247540d2ac6891d37feabae730db15641"
+      },
+      "verification_scope": "statement_only"
+    },
+    "numinamath": {
+      "complete": true,
+      "fail": {
+        "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/numinamath_verified_fail.jsonl",
+        "rows": 79953,
+        "sha256": "8d2a4bda5d18e9b64a3ced30bbef901a43b9f145bbc456fe7b9d64beff224f6d"
+      },
+      "raw": {
+        "bytes": 78426425,
+        "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/raw_data/numinamath_raw.parquet",
+        "rows": 104155,
+        "sha256": "cddeac3b98ad642b53e41b1751ceb7ab34ad22019d8e542b403de67ecf337bc9"
+      },
+      "report_path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/numinamath_verification_report.json",
+      "revision": "51fa67f1f647ae1ecd81eef9f19306aa8a7b3a94",
+      "source": "AI-MO/NuminaMath-LEAN",
+      "success": {
+        "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/numinamath_verified_success.jsonl",
+        "rows": 24202,
+        "sha256": "b8c06959a9755d87da2054ea4abc3384a3d2d768f7ce5b9a94725ed13c34123c"
+      },
+      "verification_scope": "full_proof"
+    }
+  },
+  "leanworkbook_full_verification": {
+    "complete_original_theorem_coverage": true,
+    "environment_hash": "46b005cc84cb6602c278fcfc596e51a03a5b9296bc7fda34f55d86ebfeb2c51a",
+    "fail_2": 5854,
+    "files": {
+      "fail_2": {
+        "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/leanworkbook_verified_fail_2.jsonl",
+        "sha256": "7ff5200583478803860c3c6f5cdf29cf9212d58a9de879e2eabd1ac9d957a241"
+      },
+      "success_1": {
+        "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/leanworkbook_verified_success_1.jsonl",
+        "sha256": "805ccd7acc24703a6e0ae44125fd0958d1079215a702cf4bf0e5417ecfd74e76"
+      },
+      "success_2": {
+        "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/leanworkbook_verified_success_2.jsonl",
+        "sha256": "5573f9a7d203a35e460d0c581c645decca8bc9419e67341ade1adfd8408914d9"
+      }
+    },
+    "raw_trajectory_rows": 25214,
+    "report_path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/leanworkbook_verification_report_2.json",
+    "success_1": 2657,
+    "success_2": 5006,
+    "unique_theorem_records": 13517
+  },
+  "raw": {
+    "leandojo": {
+      "bytes": 136455446,
+      "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/raw_data/leandojo_raw.jsonl",
+      "sha256": "571f3536308ee1e99e5cc1c295ba1752b9f1f8d1212736e7a3cabe648dff1662"
+    },
+    "leanworkbook": {
+      "bytes": 4600174,
+      "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/raw_data/leanworkbook_raw.parquet",
+      "sha256": "80275c48d2ec0f989aadb248380f37b9da5131c48a17a7a92898f760c2c663f2"
+    }
+  },
+  "schema_version": "dataset-record-sha256-v1",
+  "verified_success_1": {
+    "leandojo": {
+      "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/leandojo_verified_success_1.jsonl",
+      "rows": 5311,
+      "sha256": "8080b1fcd0027cedd1beef8ced265f8419058cebcef236cf183c319be84d9db3"
+    },
+    "leanworkbook": {
+      "path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/verified_data/leanworkbook_verified_success_1.jsonl",
+      "rows": 2657,
+      "sha256": "805ccd7acc24703a6e0ae44125fd0958d1079215a702cf4bf0e5417ecfd74e76"
+    }
+  }
+}

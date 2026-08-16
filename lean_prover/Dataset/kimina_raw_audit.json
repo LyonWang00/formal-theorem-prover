@@ -1,0 +1,151 @@
+{
+  "columns": [
+    "statement_id",
+    "natural_language",
+    "formal_statement",
+    "source",
+    "name"
+  ],
+  "dataset": "AI-MO/Kimina-Prover-Promptset",
+  "duplicate_or_missing_ids": 16798,
+  "empty_formal_statements": 0,
+  "expected_columns": [
+    "formal_statement",
+    "name",
+    "natural_language",
+    "source",
+    "statement_id"
+  ],
+  "normalization_errors": 0,
+  "normalized_target_rows": 24418,
+  "proof_columns": [],
+  "proof_free_after_target_normalization": true,
+  "raw_bytes": 4360794,
+  "raw_path": "/home/lean/projects/formal-theorem-prover/lean_prover/Dataset/raw_data/kimina_raw.parquet",
+  "raw_sha256": "68f33cee8d4d69479069117880be096fbfebb01af8c46cee0e54201fb28e1750",
+  "revision": "3009c548d90160d0f5e963d72238610c6732f812",
+  "rows": 24418,
+  "schema_gate_passed": true,
+  "success_semantics": "statement elaborates with placeholder; no proof claim",
+  "supporting_prefix_rows": 254,
+  "tail_categories": {
+    "direct_sorry": 237,
+    "empty_assignment": 483,
+    "empty_by": 13787,
+    "placeholder_sorry": 9911
+  },
+  "tail_samples": {
+    "direct_sorry": [
+      {
+        "formal_statement_tail": "ologicalSpace Finset\nopen scoped BigOperators\n\n/- Let $f$ be a real-valued function defined in a neighborhood of 0. If the limit of the function $f(x) / x^3$ as $x$ approaches 0 exists and is equal to a real number $L$, then the limit of the function $f(x) / (\\sin x)^3$ as $x$ approaches 0 also exists and is equal to $L$. -/\ntheorem calculus_137670_v0001\n  (f : ℝ → ℝ)\n  (h : ∃ L, Tendsto (λ x => f x / x ^ 3) (𝓝[≠] 0) (𝓝 L))\n  : ∃ L, Tendsto (λ x => f x / (Real.sin x) ^ 3) (𝓝[≠] 0) (𝓝 L) :=\nsorry",
+        "name": "calculus_137670_v0001",
+        "statement_id": "cec5fbb6-29de-465f-b485-703f606fb98e"
+      },
+      {
+        "formal_statement_tail": "import Mathlib\n\nopen Topology Filter Real Complex TopologicalSpace Finset\nopen scoped BigOperators\n\n/- For any positive real numbers $a$ and $b$, the limit of the function $(a^x - b^x) / x$ as $x$ approaches 0 is equal to $\\ln(a) - \\ln(b)$. -/\ntheorem calculus_137670_v0002 (a b : ℝ) (ha : 0 < a) (hb : 0 < b) :\n  Tendsto (λ x => (a^x - b^x) / x) (𝓝[≠] 0) (𝓝 (Real.log a - Real.log b)) :=\nsorry",
+        "name": "calculus_137670_v0002",
+        "statement_id": "152beb2e-b29e-4ebf-9d8f-c4ef5600a019"
+      },
+      {
+        "formal_statement_tail": "import Mathlib\n\nopen Topology Filter Real Complex TopologicalSpace Finset\nopen scoped BigOperators\n\n/- The limit of the function $\\frac{x^2(2^x - 5^x)}{(1 + x^2 \\cdot 5^x) \\cdot (\\sin x)^3}$ as $x$ approaches 0 is equal to $\\ln(2) - \\ln(5)$. -/\ntheorem calculus_137670_v0003 :\n  Tendsto (λ x => (x^2 * (2^x - 5^x)) / ((1 + x^2 * 5^x) * (Real.sin x)^3)) (𝓝[≠] 0) (𝓝 (Real.log 2 - Real.log 5)) :=\nsorry",
+        "name": "calculus_137670_v0003",
+        "statement_id": "420ba817-c6da-45ed-9286-3ce8be50a8b9"
+      },
+      {
+        "formal_statement_tail": "import Mathlib\n\nopen Topology Filter Real Complex TopologicalSpace Finset\nopen scoped BigOperators\n\n/- For any positive real numbers $a$ and $b$, the limit of the function $\\frac{a^x - b^x}{x}$ as $x$ approaches $0$ is $\\ln(a) - \\ln(b)$. -/\ntheorem calculus_137670_v0004 (a b : ℝ) (ha : 0 < a) (hb : 0 < b) :\n  Tendsto (λ x => (a ^ x - b ^ x) / x) (𝓝[≠] 0) (𝓝 (Real.log a - Real.log b)) :=\nsorry",
+        "name": "calculus_137670_v0004",
+        "statement_id": "f795a35d-8180-4ae2-8608-1276a01655cd"
+      },
+      {
+        "formal_statement_tail": "import Mathlib\n\nopen Topology Filter Real Complex TopologicalSpace Finset\nopen scoped BigOperators\n\n/- The limit of the function $\\left(\\frac{1+x^{2} \\cdot 2^{x}}{1+x^{2} \\cdot 5^{x}}\\right)^{\\frac{1}{x^{3}}}$ as $x$ approaches $0$ is $2/5$. -/\ntheorem calculus_137670_v0005 :\n  Tendsto (λ x => ((1 + x^2 * 2^x) / (1 + x^2 * 5^x)) ^ (1 / x^3)) (𝓝[≠] 0) (𝓝 (2/5)) :=\nsorry",
+        "name": "calculus_137670_v0005",
+        "statement_id": "de840dd4-0e9f-4075-85d3-91175b904a5e"
+      }
+    ],
+    "empty_assignment": [
+      {
+        "formal_statement_tail": "frac {\\pi}{2}\\right)$ such that\n\\[\\tan{\\left(a_0 - \\frac {\\pi}{4}\\right)} + \\tan{\\left(a_1 - \\frac {\\pi}{4}\\right)} + \\cdots + \\tan{\\left(a_n - \\frac {\\pi}{4}\\right)}\\ge n - 1\\]\nProve that $\\tan{\\left(a_0\\right)}\\tan{\\left(a_1\\right)}\\cdots \\tan{\\left(a_n\\right)}\\ge n^{n + 1}$. -/\ntheorem inequalities_97354 {n : ℕ} (a : ℕ → ℝ)\n  (ha : ∀ i ∈ Finset.range (n + 1), a i ∈ Ioo 0 (π/2))\n  (h : ∑ i ∈ Finset.range (n + 1), tan (a i - π/4) ≥ n - 1) :\n  ∏ i ∈ Finset.range (n + 1), tan (a i) ≥ n^(n + 1) :=",
+        "name": "inequalities_97354",
+        "statement_id": "dd2d53ba-f38c-4ef1-9b18-1c5f7e0eb988"
+      },
+      {
+        "formal_statement_tail": "frac {\\pi}{2}\\right)$ such that\n\\[\\tan{\\left(a_0 - \\frac {\\pi}{4}\\right)} + \\tan{\\left(a_1 - \\frac {\\pi}{4}\\right)} + \\cdots + \\tan{\\left(a_n - \\frac {\\pi}{4}\\right)}\\ge n - 1\\]\nProve that $\\tan{\\left(a_0\\right)}\\tan{\\left(a_1\\right)}\\cdots \\tan{\\left(a_n\\right)}\\ge n^{n + 1}$. -/\ntheorem inequalities_97354 {n : ℕ} (a : ℕ → ℝ)\n  (ha : ∀ i ∈ Finset.range (n + 1), a i ∈ Ioo 0 (π/2))\n  (h : ∑ i ∈ Finset.range (n + 1), tan (a i - π/4) ≥ n - 1) :\n  ∏ i ∈ Finset.range (n + 1), tan (a i) ≥ n^(n + 1) :=",
+        "name": "inequalities_97354",
+        "statement_id": "dd2d53ba-f38c-4ef1-9b18-1c5f7e0eb988"
+      },
+      {
+        "formal_statement_tail": "frac {\\pi}{2}\\right)$ such that\n\\[\\tan{\\left(a_0 - \\frac {\\pi}{4}\\right)} + \\tan{\\left(a_1 - \\frac {\\pi}{4}\\right)} + \\cdots + \\tan{\\left(a_n - \\frac {\\pi}{4}\\right)}\\ge n - 1\\]\nProve that $\\tan{\\left(a_0\\right)}\\tan{\\left(a_1\\right)}\\cdots \\tan{\\left(a_n\\right)}\\ge n^{n + 1}$. -/\ntheorem inequalities_97354 {n : ℕ} (a : ℕ → ℝ)\n  (ha : ∀ i ∈ Finset.range (n + 1), a i ∈ Ioo 0 (π/2))\n  (h : ∑ i ∈ Finset.range (n + 1), tan (a i - π/4) ≥ n - 1) :\n  ∏ i ∈ Finset.range (n + 1), tan (a i) ≥ n^(n + 1) :=",
+        "name": "inequalities_97354",
+        "statement_id": "dd2d53ba-f38c-4ef1-9b18-1c5f7e0eb988"
+      },
+      {
+        "formal_statement_tail": "frac {\\pi}{2}\\right)$ such that\n\\[\\tan{\\left(a_0 - \\frac {\\pi}{4}\\right)} + \\tan{\\left(a_1 - \\frac {\\pi}{4}\\right)} + \\cdots + \\tan{\\left(a_n - \\frac {\\pi}{4}\\right)}\\ge n - 1\\]\nProve that $\\tan{\\left(a_0\\right)}\\tan{\\left(a_1\\right)}\\cdots \\tan{\\left(a_n\\right)}\\ge n^{n + 1}$. -/\ntheorem inequalities_97354 {n : ℕ} (a : ℕ → ℝ)\n  (ha : ∀ i ∈ Finset.range (n + 1), a i ∈ Ioo 0 (π/2))\n  (h : ∑ i ∈ Finset.range (n + 1), tan (a i - π/4) ≥ n - 1) :\n  ∏ i ∈ Finset.range (n + 1), tan (a i) ≥ n^(n + 1) :=",
+        "name": "inequalities_97354",
+        "statement_id": "dd2d53ba-f38c-4ef1-9b18-1c5f7e0eb988"
+      },
+      {
+        "formal_statement_tail": "frac {\\pi}{2}\\right)$ such that\n\\[\\tan{\\left(a_0 - \\frac {\\pi}{4}\\right)} + \\tan{\\left(a_1 - \\frac {\\pi}{4}\\right)} + \\cdots + \\tan{\\left(a_n - \\frac {\\pi}{4}\\right)}\\ge n - 1\\]\nProve that $\\tan{\\left(a_0\\right)}\\tan{\\left(a_1\\right)}\\cdots \\tan{\\left(a_n\\right)}\\ge n^{n + 1}$. -/\ntheorem inequalities_97354 {n : ℕ} (a : ℕ → ℝ)\n  (ha : ∀ i ∈ Finset.range (n + 1), a i ∈ Ioo 0 (π/2))\n  (h : ∑ i ∈ Finset.range (n + 1), tan (a i - π/4) ≥ n - 1) :\n  ∏ i ∈ Finset.range (n + 1), tan (a i) ≥ n^(n + 1) :=",
+        "name": "inequalities_97354",
+        "statement_id": "dd2d53ba-f38c-4ef1-9b18-1c5f7e0eb988"
+      }
+    ],
+    "empty_by": [
+      {
+        "formal_statement_tail": "ldots+u_{k} ; u_{k}\\right)=0\n$$ -/\ntheorem algebra_182566 {n : ℕ} {k : ℕ} {P : MvPolynomial (Fin 2) ℝ}\n  (hn : n ≥ 3) (hk : k ≥ 1)\n  (h1 : ∀ x y t : ℝ, MvPolynomial.eval (fun i => if i = 0 then t * x else t * y) P \n    = t ^ n * MvPolynomial.eval (fun i => if i = 0 then x else y) P)\n  (h2 : ∀ u : Fin k → ℝ, ∑ i : Fin k, MvPolynomial.eval (fun j => if j = 0 then ∑ j : Fin k, u j else u i) P = 0) :\n  ∃ B, ∀ x y, MvPolynomial.eval (fun i => if i = 0 then x else y) P = B * x^(n-1) * (x - k * y):= by",
+        "name": "algebra_182566",
+        "statement_id": "b371759f-dcbe-4adc-bc25-9a05d502e84d"
+      },
+      {
+        "formal_statement_tail": "ldots+u_{k} ; u_{k}\\right)=0\n$$ -/\ntheorem algebra_182566 {n : ℕ} {k : ℕ} {P : MvPolynomial (Fin 2) ℝ}\n  (hn : n ≥ 3) (hk : k ≥ 1)\n  (h1 : ∀ x y t : ℝ, MvPolynomial.eval (fun i => if i = 0 then t * x else t * y) P \n    = t ^ n * MvPolynomial.eval (fun i => if i = 0 then x else y) P)\n  (h2 : ∀ u : Fin k → ℝ, ∑ i : Fin k, MvPolynomial.eval (fun j => if j = 0 then ∑ j : Fin k, u j else u i) P = 0) :\n  ∃ B, ∀ x y, MvPolynomial.eval (fun i => if i = 0 then x else y) P = B * x^(n-1) * (x - k * y):= by",
+        "name": "algebra_182566",
+        "statement_id": "b371759f-dcbe-4adc-bc25-9a05d502e84d"
+      },
+      {
+        "formal_statement_tail": "ldots+u_{k} ; u_{k}\\right)=0\n$$ -/\ntheorem algebra_182566 {n : ℕ} {k : ℕ} {P : MvPolynomial (Fin 2) ℝ}\n  (hn : n ≥ 3) (hk : k ≥ 1)\n  (h1 : ∀ x y t : ℝ, MvPolynomial.eval (fun i => if i = 0 then t * x else t * y) P \n    = t ^ n * MvPolynomial.eval (fun i => if i = 0 then x else y) P)\n  (h2 : ∀ u : Fin k → ℝ, ∑ i : Fin k, MvPolynomial.eval (fun j => if j = 0 then ∑ j : Fin k, u j else u i) P = 0) :\n  ∃ B, ∀ x y, MvPolynomial.eval (fun i => if i = 0 then x else y) P = B * x^(n-1) * (x - k * y):= by",
+        "name": "algebra_182566",
+        "statement_id": "b371759f-dcbe-4adc-bc25-9a05d502e84d"
+      },
+      {
+        "formal_statement_tail": "ldots+u_{k} ; u_{k}\\right)=0\n$$ -/\ntheorem algebra_182566 {n : ℕ} {k : ℕ} {P : MvPolynomial (Fin 2) ℝ}\n  (hn : n ≥ 3) (hk : k ≥ 1)\n  (h1 : ∀ x y t : ℝ, MvPolynomial.eval (fun i => if i = 0 then t * x else t * y) P \n    = t ^ n * MvPolynomial.eval (fun i => if i = 0 then x else y) P)\n  (h2 : ∀ u : Fin k → ℝ, ∑ i : Fin k, MvPolynomial.eval (fun j => if j = 0 then ∑ j : Fin k, u j else u i) P = 0) :\n  ∃ B, ∀ x y, MvPolynomial.eval (fun i => if i = 0 then x else y) P = B * x^(n-1) * (x - k * y):= by",
+        "name": "algebra_182566",
+        "statement_id": "b371759f-dcbe-4adc-bc25-9a05d502e84d"
+      },
+      {
+        "formal_statement_tail": "Let a,b,n be positive integers such that $(a,b) = 1$.  \nProve that if $(x,y)$ is a solution of the equation $ax+by = a^n + b^n$ then\n$$\\left[\\frac{x}{b}\\right]+\\left[\\frac{y}{a}\\right]=\\left[\\frac{a^{n-1}}{b}\\right]+\\left[\\frac{b^{n-1}}{a}\\right]$$ -/\ntheorem number_theory_29735 (a b n : ℕ) (ha : 0 < a) (hb : 0 < b) (hn : 0 < n)\n    (hab : Nat.gcd a b = 1) (x y : ℤ) (hxy : a * x + b * y = a ^ n + b ^ n) :\n    ⌊(x / b : ℝ)⌋ + ⌊(y / a : ℝ)⌋ = ⌊(a ^ (n - 1) / b : ℝ)⌋ + ⌊(b ^ (n - 1) / a : ℝ)⌋ := by",
+        "name": "number_theory_29735",
+        "statement_id": "4741f80d-e975-4249-ba7c-2a2b93aa6c5a"
+      }
+    ],
+    "placeholder_sorry": [
+      {
+        "formal_statement_tail": "import Mathlib\n\ntheorem number_theory_29735_v17562 {a b n : ℕ} (ha : 0 < a) (hb : 0 < b) (hn : 0 < n)\n    (hab : Nat.gcd a b = 1) {x y : ℤ} (hxy : a * x + b * y = a ^ n + b ^ n) :\n    ∃ k : ℤ, x = a ^ (n - 1) + k * b ∧ y = b ^ (n - 1) - k * a := by sorry",
+        "name": "number_theory_29735_v17562",
+        "statement_id": "ab41508d-4839-43f4-af39-99f066ca6ed2"
+      },
+      {
+        "formal_statement_tail": "import Mathlib\n\ntheorem number_theory_29735_v0001 (r s : ℝ) (k : ℤ) :\n    ⌊r + k⌋ + ⌊s - k⌋ = ⌊r⌋ + ⌊s⌋ := by sorry",
+        "name": "number_theory_29735_v0001",
+        "statement_id": "dbff1fa9-1db1-4b79-8b17-1ad5d0f425f7"
+      },
+      {
+        "formal_statement_tail": "import Mathlib\n\ntheorem number_theory_29735_v0002 (a b n : ℕ) (x y : ℤ) (hpos : 0 < a ∧ 0 < b ∧ 0 < n)\n    (hgcd : Int.gcd a b = 1) (h : a * x + b * y = a ^ n + b ^ n) :\n    (x / b : ℝ) % 1 + (y / a : ℝ) % 1 =\n    (a ^ (n - 1) / b : ℝ) % 1 + (b ^ (n - 1) / a : ℝ) % 1 := by sorry",
+        "name": "number_theory_29735_v0002",
+        "statement_id": "33a4910d-8094-4606-a2e9-a9ac2cdba3a9"
+      },
+      {
+        "formal_statement_tail": "import Mathlib\n\ntheorem number_theory_29735_v17565 (a b n : ℕ) (habn : 0 < a ∧ 0 < b ∧ 0 < n)\n    (hcoprime : Nat.Coprime a b) (x y : ℤ) (hxy : a * x + b * y = a ^ n + b ^ n) :\n    x ≡ a ^ (n - 1) [ZMOD b] := by sorry",
+        "name": "number_theory_29735_v17565",
+        "statement_id": "1df2f8e0-0ffa-4130-b0e6-0d081622e4ee"
+      },
+      {
+        "formal_statement_tail": "import Mathlib\n\ntheorem number_theory_29735_v17566 (a b x y : ℤ) (ha : 0 < a) (hb : 0 < b)\n    (hcoprime : IsCoprime a b) (h : a * x + b * y = a + b) :\n    ⌊(x / (-b : ℝ))⌋ + ⌊(y / (-a : ℝ))⌋ = ⌊(1 / (-b : ℝ))⌋ + ⌊(1 / (-a : ℝ))⌋ := by sorry",
+        "name": "number_theory_29735_v17566",
+        "statement_id": "f105ecdb-1eeb-40b4-9ade-a68c1a1acf3a"
+      }
+    ]
+  },
+  "target_name_fallback_rows": 43,
+  "target_name_mismatches": 4,
+  "unique_ids": 7620,
+  "verification_scope": "statement_only"
+}

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+args=()
+for arg in "$@"; do
+  if [[ "$arg" == https://github.com/* ]]; then
+    args+=("https://ghfast.top/$arg")
+  else
+    args+=("$arg")
+  fi
+done
+
+exec /usr/bin/curl "${args[@]}"

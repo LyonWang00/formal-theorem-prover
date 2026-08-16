@@ -1,0 +1,51 @@
+runtime:
+  profile: laptop
+
+training:
+  fixed_anchor_checkpoint: outputs/qwen25_1_5b_clean_m0_verified_v2/initial_sft/merged_anchor
+  max_optimizer_steps: 202
+  effective_batch_size: 16
+  learning_rate: 2.0e-5
+  warmup_ratio: 0.03
+  scheduler: linear
+  lora_rank: 32
+  lora_alpha: 64
+  lora_dropout: 0.05
+  max_seq_length: 1024
+  seed: 42
+
+anchor_balance:
+  enabled: true
+  dynamic_mix:
+    hard: 0.25
+    frontier: 0.40
+    medium: 0.20
+    easy: 0.15
+  max_record_repeat: 3
+  coverage_first: true
+  preserve_tactic_diversity: true
+
+expert_selection:
+  frontier_success_counts: [1, 2]
+  max_training_proofs_per_statement: 1
+
+ablation:
+  arms:
+    - A1_unbalanced_anchor_only
+    - A3_unbalanced_anchor_frontier_90_10
+    - A4_balanced_anchor_only
+    - A5_balanced_anchor_frontier_90_10
+  reuse_existing:
+    A0_clean_M0: true
+    A2_current_M1_85_15: true
+
+evaluation:
+  monitor_size: 64
+  monitor_samples_per_statement: 4
+  anchor_gate_size: 150
+  discovery_gate_size: 150
+  full_replay_top_models: 2
+  monitor_release_tolerance_statements: 1
+  discovery_gate_release_tolerance_statements: 2
+  max_relative_eval_loss_increase: 0.03
+

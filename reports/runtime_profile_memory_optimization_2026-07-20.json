@@ -1,0 +1,47 @@
+{
+  "date": "2026-07-20",
+  "status": "passed",
+  "profile": "laptop",
+  "hardware": "RTX 4060 Laptop 8GB",
+  "smoke_output": "outputs/qwen25_1_5b_runtime_laptop_smoke50",
+  "runtime_seconds": 547.6,
+  "memory": {
+    "historical_observed_ratio_range": [0.95, 1.0],
+    "historical_instrumented_baseline_available": false,
+    "peak_system_used_ratio": 0.24985876525168518,
+    "peak_process_rss_bytes": 907739136,
+    "peak_gpu_used_mib": 5504,
+    "samples": 71,
+    "warnings": 0,
+    "criticals": 0,
+    "oom": false
+  },
+  "lifecycle": {
+    "generation_process_starts": 2,
+    "pantograph_pool_starts": 3,
+    "pantograph_workers_per_pool": 2,
+    "worker_restarts": {"0": 0, "1": 0},
+    "trainer_process_started": false,
+    "resource_leaks": 0
+  },
+  "smoke": {
+    "statements": 50,
+    "generations": 200,
+    "unique_generation_ids": 200,
+    "verifications": 200,
+    "unique_verification_generation_ids": 200,
+    "successful_candidates": 54,
+    "solved_statements": 24,
+    "proof_bank": 41,
+    "failure_bank": 146,
+    "training_skipped": true,
+    "training_skip_reason": "current proofs 24 < minimum 50"
+  },
+  "storage": {
+    "sqlite_cache_rows": 180,
+    "success_rows_with_full_source": 0,
+    "failure_rows_with_full_source": 146,
+    "retained_failure_task_files_including_precheck": 165
+  },
+  "tests": {"passed": 98, "skipped": 1, "failed": 0}
+}

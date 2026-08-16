@@ -1,0 +1,23 @@
+# Copy this block into an expert-iteration config as its top-level `runtime` key.
+runtime:
+  profile: server
+  generation_verification_mode: pipeline
+  generation:
+    mode: persistent
+    batch_size: 512
+    persistent: true
+  verification:
+    lifecycle: persistent
+    workers: 16
+    persistent: true
+  memory:
+    streaming: true
+    max_queue_size: 1000
+  cache:
+    backend: sqlite
+  debug:
+    save_full_source_on_failure_only: true
+  memory_guard:
+    enabled: true
+    warning_ratio: 0.85
+    critical_ratio: 0.95

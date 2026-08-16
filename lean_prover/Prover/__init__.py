@@ -1,0 +1,45 @@
+"""Public API-only Prover facade."""
+
+from .results import JsonlProverResultStore, ProverResultStore, collect_prover_result
+from .service import (
+    BlueprintProver,
+    CandidateProofRepairer,
+    DependencyContext,
+    GeneratedProof,
+    JsonlProverTelemetryStore,
+    NodeProofRequest,
+    NodeProofVerifier,
+    OpenAICompatibleProofGenerator,
+    ProofGenerationError,
+    ProofGenerator,
+    ProofRepairer,
+    ProverApiSettings,
+    ProverAttemptRecord,
+    ProverSettingsError,
+    build_node_proof_prompt,
+    create_openai_compatible_proof_generator_from_env,
+    extract_lean_proof_body,
+)
+
+__all__ = [
+    "BlueprintProver",
+    "CandidateProofRepairer",
+    "DependencyContext",
+    "GeneratedProof",
+    "JsonlProverTelemetryStore",
+    "JsonlProverResultStore",
+    "NodeProofRequest",
+    "NodeProofVerifier",
+    "OpenAICompatibleProofGenerator",
+    "ProofGenerationError",
+    "ProofGenerator",
+    "ProofRepairer",
+    "ProverResultStore",
+    "ProverApiSettings",
+    "ProverAttemptRecord",
+    "ProverSettingsError",
+    "build_node_proof_prompt",
+    "create_openai_compatible_proof_generator_from_env",
+    "collect_prover_result",
+    "extract_lean_proof_body",
+]

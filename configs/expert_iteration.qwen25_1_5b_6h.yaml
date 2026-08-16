@@ -1,0 +1,203 @@
+run_name: qwen25_1_5b_expert_iteration_6h
+seed: 42
+output_dir: outputs/qwen25_1_5b_expert_iteration_6h
+
+runtime:
+  profile: laptop
+  generation_verification_mode: sequential
+  generation: {mode: isolated, batch_size: 100, persistent: false}
+  verification: {lifecycle: stage, workers: 2, persistent: false}
+  memory: {streaming: true, max_queue_size: 32}
+  cache: {backend: sqlite}
+  debug: {save_full_source_on_failure_only: true}
+  memory_guard: {enabled: true, warning_ratio: 0.85, critical_ratio: 0.95}
+
+data:
+  train_path: data/processed/expert_iteration_6h/train_3000.jsonl
+  eval_path: data/processed/expert_iteration_6h/eval_160.jsonl
+  discovery_path: data/processed/expert_iteration_6h/discovery_700.jsonl
+  monitor_path: data/processed/expert_iteration_6h/minif2f_valid_32.jsonl
+  benchmark_path: data/processed/expert_iteration_6h/minif2f_test_96.jsonl
+  overlap_policy: error
+
+initial_model:
+  base_model: models/Qwen2.5-1.5B-Instruct
+  tokenizer: models/Qwen2.5-1.5B-Instruct
+  skip_initial_sft: false
+  checkpoint_strategy: fixed_anchor
+  merged_sft0_path: outputs/qwen25_1_5b_expert_iteration_6h/initial_sft/merged_anchor
+
+iterations:
+  max_iterations: 2
+  minimum_new_proofs_to_train: 50
+  append_discovery_size_if_insufficient: 100
+  terminate_if_new_proofs_below: 25
+  stop_when_training_skipped: true
+
+discovery:
+  batch_statements: 100
+  statements_per_iteration: 300
+  max_consecutive_zero_success_rounds: 2
+  hard_archive_after_rounds: 2
+  solved_easy_success_ratio: 1.0
+  pool_mix:
+    new: 0.3571428571
+    frontier: 0.3571428571
+    unsolved: 0.2142857143
+    audit: 0.0714285714
+  sampling_budget:
+    new: 4
+    frontier: 4
+    unsolved: 3
+    audit: 2
+  iteration_bucket_counts:
+    0: {new: 300, frontier: 0, unsolved: 0, audit: 0}
+    1: {new: 100, frontier: 100, unsolved: 60, audit: 20}
+  iteration_sampling_budget:
+    0: {new: 4, frontier: 4, unsolved: 3, audit: 2}
+    1: {new: 4, frontier: 4, unsolved: 3, audit: 2}
+  iteration_generation_seeds:
+    0: 1001
+    1: 2001
+  generation:
+    backend: vllm
+    samples_per_statement: 4
+    temperature: 0.8
+    top_p: 0.95
+    max_new_tokens: 256
+    batch_size: 2
+    load_in_4bit: true
+    max_model_len: 1280
+    gpu_memory_utilization: 0.65
+    enforce_eager: true
+    kv_cache_memory_bytes: 134217728
+
+verification:
+  lean_project_path: lean_project
+  imports: [Mathlib]
+  num_workers: 2
+  queue_maxsize: 128
+  timeout_seconds: 30
+  warmup_timeout_seconds: 3600
+  heartbeat_interval_seconds: 5
+  heartbeat_timeout_seconds: 30
+  max_worker_restarts: 3
+  max_task_retries: 1
+  shutdown_timeout_seconds: 10
+  reject_sorry: true
+  reject_admit: true
+  reject_axiom: true
+  use_cache: true
+
+precheck:
+  enabled: true
+  fail_fast: true
+  lean_smoke_test:
+    enabled: true
+    required_pass_rate: 1.0
+  pantograph_smoke_test:
+    enabled: true
+    required_pass_rate: 1.0
+  reference_roundtrip:
+    enabled: true
+    train_samples: 10
+    eval_samples: 10
+    benchmark_samples: 10
+    required_pass_rate: 1.0
+  generation_smoke_test:
+    enabled: true
+    statements: 10
+    samples_per_statement: 2
+    max_length_finish_ratio: 0.30
+    minimum_extraction_success_rate: 0.90
+  checkpoint_check:
+    enabled: true
+    require_adapter_or_merged_checkpoint: true
+
+proof_bank:
+  max_verified_proofs_per_statement: 3
+  max_training_proofs_per_statement: 1
+  selection_strategy: random_verified
+
+train_mix_first_iteration:
+  anchor: 0.75
+  historical_expert: 0.0
+  current_expert: 0.25
+
+train_mix:
+  anchor: 0.70
+  historical_expert: 0.20
+  current_expert: 0.10
+
+category_sampling:
+  enabled: true
+  strategy: sqrt_inverse_frequency
+  max_oversample_factor: 6
+
+training:
+  use_qlora: true
+  lora_rank: 32
+  lora_alpha: 64
+  lora_dropout: 0.05
+  initial_learning_rate: 5.0e-5
+  learning_rate: 2.0e-5
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 16
+  gradient_checkpointing: true
+  max_seq_length: 1024
+  packing: true
+  logging_steps: 10
+  optimizer: paged_adamw_8bit
+  weight_decay: 0.01
+  warmup_ratio: 0.03
+  max_grad_norm: 1.0
+  eval_strategy: epoch
+  eval_steps: null
+  save_strategy: epoch
+  save_steps: 100
+  load_best_model_at_end: true
+  metric_for_best_model: eval_loss
+  greater_is_better: false
+
+execution:
+  isolate_gpu_stages: true
+  generation_timeout_seconds: 7200
+  training_timeout_seconds: 10800
+  flashinfer_sampler: true
+
+monitor:
+  enabled: true
+  pass_k: [1, 2]
+  samples_per_statement: 2
+  fixed_generation_seed: true
+  generation_seed: 3001
+  evaluate_initial_checkpoint: true
+
+benchmark:
+  enabled: true
+  run_mode: final_only
+  pass_k: [1, 2, 4]
+  samples_per_statement: 4
+  fixed_generation_seed: true
+  generation_seed: 4001
+
+checkpoint_selection:
+  metric: best_monitor_pass_at_k
+
+stopping:
+  min_discovery_new_solved_ratio: 0.02
+  max_eval_loss_degradation: 0.10
+  min_monitor_improvement: 0.002
+  patience: 2
+
+runtime_budget:
+  target_hours: 5.5
+  hard_limit_hours: 6.5
+  reduce_iteration_1_if_elapsed_hours_above: 1.5
+  reduced_iteration_1_statements: 250
+  reduce_iteration_2_if_elapsed_hours_above: 3.5
+  reduced_iteration_2_statements: 220
+  reduce_benchmark_k_if_elapsed_hours_above: 5.2
+  reduced_benchmark_samples_per_statement: 2

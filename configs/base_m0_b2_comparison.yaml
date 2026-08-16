@@ -1,0 +1,44 @@
+experiment: base_m0_b2_comparison
+source_results: outputs/b2_expanded_validation
+output_dir: outputs/base_m0_b2_comparison
+
+runtime:
+  profile: laptop
+  generation_verification_mode: sequential
+
+models:
+  Base:
+    base_model: models/Qwen2.5-1.5B-Instruct
+  M0:
+    base_model: outputs/qwen25_1_5b_clean_m0_verified_v2/initial_sft/merged_anchor
+  B2:
+    base_model: outputs/qwen25_1_5b_clean_m0_verified_v2/initial_sft/merged_anchor
+    adapter: outputs/expert_sft_no_replacement_ablation/checkpoints/B2_anchor_expert_1000/step_63
+
+generation:
+  do_sample: true
+  temperature: 0.8
+  top_p: 0.95
+  max_new_tokens: 256
+  samples_per_statement: 4
+  statement_batch_size: 100
+  seed: 20260730
+  seed_derivation: isolated_shard_batch_offset_v1
+
+verification:
+  workers: 2
+  timeout_seconds: 30
+  max_queue_size: 32
+  cache_backend: sqlite
+
+datasets:
+  full500: outputs/b2_expanded_validation/datasets/full500.jsonl
+  strict_unseen_primary: outputs/b2_expanded_validation/datasets/strict_unseen_discovery.jsonl
+  monitor_primary: outputs/b2_expanded_validation/datasets/monitor_minif2f_valid_64.jsonl
+  benchmark: outputs/b2_expanded_validation/datasets/benchmark_minif2f_test_96.jsonl
+
+forbidden:
+  training: true
+  proof_bank_updates: true
+  round2: true
+  create_m2: true

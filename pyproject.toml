@@ -1,0 +1,27 @@
+[project]
+name = "lean-math-prover"
+version = "0.1.0"
+description = "A branching mathematical theorem prover for Lean 4"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "openai>=1.0,<2",
+    "pantograph==0.3.15",
+    "psutil>=5,<8",
+    "pydantic>=2,<3",
+    "pyyaml>=6,<7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4,<9",
+]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["lean_prover*"]
+
+[tool.uv.sources]
+pantograph = { git = "https://github.com/stanford-centaur/PyPantograph", tag = "v0.3.15" }

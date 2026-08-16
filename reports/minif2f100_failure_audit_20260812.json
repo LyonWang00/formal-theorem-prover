@@ -1,0 +1,52 @@
+{
+  "source_output": "outputs/minif2f488_verified_lean_native_pass4_stats100_seed20260811",
+  "planner": {
+    "failure_count": 15,
+    "lean_decomposition": {
+      "count": 13,
+      "invalid_json": 9,
+      "schema_validation": 2,
+      "dag_connectivity_or_repair_freeze": 2,
+      "details": {
+        "invalid_json_ids": [
+          "imo_1982_p1",
+          "algebra_amgm_sumasqdivbgeqsuma",
+          "imo_1997_p5",
+          "imo_1977_p5",
+          "imo_2019_p1",
+          "amc12a_2009_p15",
+          "algebra_apbon2pownleqapownpbpowon2",
+          "numbertheory_exk2powkeqapb2mulbpa2_aeq1",
+          "mathd_algebra_288"
+        ],
+        "schema_ids": {
+          "mathd_algebra_137": "semantic_alignment.objects was empty",
+          "imo_1984_p6": "L14 and L15 omitted estimated_proof_length"
+        },
+        "dag_ids": {
+          "mathd_algebra_313": "L1 did not contribute to ROOT in all four validation rounds",
+          "mathd_numbertheory_328": "L1 and L2 did not contribute to ROOT; repair also changed unaffected L3"
+        }
+      }
+    },
+    "lean_validation": {
+      "count": 2,
+      "details": {
+        "mathd_numbertheory_728": "L3 stored bare hypotheses h1/h2 in preamble.local_context, producing top-level unexpected identifier",
+        "mathd_numbertheory_132": "L2 stored bare hypothesis h in preamble.local_context, producing top-level unexpected identifier"
+      }
+    }
+  },
+  "prover": {
+    "failed_attempt_count": 439,
+    "certain_obsolete_or_renamed_api_attempts": 5,
+    "empty_or_extraction_attempts": 29,
+    "tactic_proof_or_nonobsolete_generated_api_errors": 405,
+    "obsolete_or_renamed_details": {
+      "Finset.card_Icc renamed to Nat.card_Icc": 4,
+      "Nat.mul_div_right_subscript_zero replaced by Nat.mul_div_right": 1
+    },
+    "unknown_constant_but_not_counted_as_certain_old_syntax": 17,
+    "reason": "The remaining unknown names are model-invented/guessed theorem names or an invalid .mp projection from a theorem that still exists; no deterministic old-to-current mapping was established."
+  }
+}
