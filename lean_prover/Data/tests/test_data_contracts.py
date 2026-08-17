@@ -8,9 +8,11 @@ from lean_prover.Data import (
     EIData,
     EvaluationData,
     GRPOData,
+    GRPOGeneralData,
     NormalizationFamily,
     RawInferenceData,
     SFTData,
+    SFTGeneralData,
     LeanFailureDetail,
     LeanVerificationStatus,
     classify_lean_diagnostics,
@@ -29,11 +31,13 @@ def test_raw_inference_is_exactly_one_routed_problem() -> None:
 
 
 def test_sft_ei_grpo_and_evaluation_have_distinct_proof_contracts() -> None:
-    sft = SFTData(
+    sft = SFTGeneralData(
         record_id="sft-1",
         lean_statement="theorem target : True",
-        verified_proof="by trivial",
+        proof="by trivial",
         source="unit",
+        statement_hash="a" * 64,
+        proof_hash="b" * 64,
     )
     ei = EIData(
         split=DatasetSplit.DISCOVERY,
@@ -55,7 +59,7 @@ def test_sft_ei_grpo_and_evaluation_have_distinct_proof_contracts() -> None:
         source="unit",
     )
 
-    assert sft.verified_proof == "by trivial"
+    assert sft.proof == "by trivial"
     assert ei.pantograph_verified
     assert not hasattr(grpo, "proof")
     assert evaluation.reference_proof is None
@@ -65,6 +69,83 @@ def test_sft_ei_grpo_and_evaluation_have_distinct_proof_contracts() -> None:
                 **grpo.model_dump(mode="json"),
                 "proof": "by trivial",
             }
+        )
+
+
+def test_manifest_contracts_preserve_verification_context_without_role_leakage() -> None:
+    sft = SFTGeneralData(
+        record_id="sft-manifest-1",
+        lean_statement="theorem target : True",
+        proof="by trivial",
+        imports=["Mathlib"],
+        source="unit",
+        statement_hash="a" * 64,
+        proof_hash="b" * 64,
+    )
+    grpo = GRPOGeneralData(
+        record_id="grpo-manifest-1",
+        lean_statement="theorem target : True",
+        context_lines=["lemma support : True := by sorry"],
+        source="unit",
+        statement_hash="a" * 64,
+    )
+
+    assert sft.verification_scope == "full_proof"
+    assert grpo.verification_scope == "statement_only"
+    with pytest.raises(ValidationError):
+        GRPOGeneralData.model_validate(
+            {**grpo.model_dump(mode="json"), "proof": "by trivial"}
+        )
+
+
+def test_sft_training_contract_is_exactly_prompt_and_completion() -> None:
+    row = SFTData(prompt="prove this", completion="by trivial")
+
+    assert row.model_dump() == {
+        "prompt": "prove this",
+        "completion": "by trivial",
+    }
+    with pytest.raises(ValidationError):
+        SFTData.model_validate(
+            {
+                "prompt": "prove this",
+                "completion": "by trivial",
+                "lean_statement": "theorem t : True",
+            }
+        )
+
+
+def test_grpo_adapter_allows_sorry_support_but_rejects_main_proof() -> None:
+    accepted = normalize_project_record(
+        {
+            "record_id": "numina-grpo-support",
+            "lean_statement": (
+                "import Mathlib\n\n"
+                "lemma support : True := by sorry\n\n"
+                "theorem target : True"
+            ),
+            "pantograph_verified": "success",
+            "verification_scope": "statement_only",
+        },
+        family=NormalizationFamily.NUMINAMATH_GRPO,
+        index=0,
+        source_name="unit",
+    )
+    assert accepted.lean_statement == "theorem target : True"
+    assert accepted.context_lines == ("lemma support : True := by sorry",)
+    assert accepted.proof == ""
+
+    with pytest.raises(ValueError, match="main theorem must not contain a proof"):
+        normalize_project_record(
+            {
+                "record_id": "numina-grpo-invalid",
+                "lean_statement": "theorem target : True := by trivial",
+                "pantograph_verified": "success",
+                "verification_scope": "statement_only",
+            },
+            family=NormalizationFamily.NUMINAMATH_GRPO,
+            index=0,
+            source_name="unit",
         )
 
 
@@ -82,8 +163,49 @@ def test_sft_ei_grpo_and_evaluation_have_distinct_proof_contracts() -> None:
         ),
         (
             NormalizationFamily.MINIF2F,
-            {"id": "mini-1", "formal_statement": "theorem mini : True"},
+            {
+                "id": "mini-1",
+                "split": "test",
+                "formal_statement": "theorem mini : True",
+                "header": "import Mathlib\n\nopen Nat",
+                "pantograph_verified": "success",
+            },
             "minif2f",
+        ),
+        (
+            NormalizationFamily.NUMINAMATH_SFT,
+            {
+                "record_id": "numina-sft-1",
+                "lean_statement": "import Mathlib\n\ntheorem numina_sft : True",
+                "proof": "by trivial",
+                "problem": "Prove True.",
+                "pantograph_verified": "success",
+                "verification_scope": "full_proof",
+            },
+            "numinamath-sft",
+        ),
+        (
+            NormalizationFamily.NUMINAMATH_GRPO,
+            {
+                "record_id": "numina-grpo-1",
+                "lean_statement": "import Mathlib\n\ntheorem numina_grpo : True",
+                "metadata": {"original_problem": "Prove True."},
+                "pantograph_verified": "success",
+                "verification_scope": "statement_only",
+            },
+            "numinamath-grpo",
+        ),
+        (
+            NormalizationFamily.KIMINA_GRPO,
+            {
+                "record_id": "kimina-grpo-1",
+                "formal_statement": "import Mathlib\n\ntheorem kimina : True := by sorry",
+                "lean_statement": "theorem kimina : True",
+                "natural_language": "Prove True.",
+                "pantograph_verified": "success",
+                "verification_scope": "statement_only",
+            },
+            "kimina-grpo",
         ),
         (
             NormalizationFamily.GENERIC,

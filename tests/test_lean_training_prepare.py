@@ -1,9 +1,11 @@
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
 from lean_prover.lean_training.data.preparation import (
+    NormalizedExample,
     ProofFormat,
     compose_lean_theorem,
     contains_forbidden_proof_token,
@@ -11,12 +13,16 @@ from lean_prover.lean_training.data.preparation import (
     normalize_lean_workbook_example,
     should_validate_dataset_with_pantograph,
     split_lean_statement_and_proof,
+    statement_hash,
 )
 from lean_prover.lean_training.data.training import (
     build_grpo_evaluation_record,
+    build_grpo_general_data,
     build_grpo_training_record,
     build_sft_evaluation_record,
+    build_sft_general_data,
     build_sft_training_record,
+    deduplicate_training_records,
     exclude_statement_overlaps,
     proof_length_metrics,
 )
@@ -120,11 +126,12 @@ def test_forbidden_token_scanner(source, expected):
     assert contains_forbidden_proof_token(source) is expected
 
 
-def test_duplicate_id_and_statement_hash_are_rejected():
+def test_sft_dedup_requires_both_statement_and_proof_to_match():
     rows = [
         {"id": "1", "formal_statement": "theorem a : True := by sorry", "tactic": "by trivial"},
         {"id": "1", "formal_statement": "theorem b : True := by sorry", "tactic": "by trivial"},
         {"id": "2", "formal_statement": "theorem a : True := by sorry", "tactic": "by trivial"},
+        {"id": "3", "formal_statement": "theorem a : True := by sorry", "tactic": "by exact True.intro"},
     ]
     records = normalize_records(
         rows,
@@ -132,7 +139,53 @@ def test_duplicate_id_and_statement_hash_are_rejected():
         source_name="test",
         require_proof=True,
     )
-    assert [record.id for record in records] == ["1"]
+    assert len(records) == 3
+    assert records[0].id == "1"
+    assert records[1].id.startswith("1::")
+    assert records[2].id == "3"
+    assert records[0].lean_statement == records[2].lean_statement
+    assert records[0].proof != records[2].proof
+
+
+def test_cross_file_training_dedup_is_role_specific():
+    sft_rows = [
+        {"lean_statement": "theorem a : True", "proof": "by trivial", "id": "1"},
+        {"lean_statement": "theorem a : True", "proof": "by exact True.intro", "id": "2"},
+        {"lean_statement": "theorem a : True", "proof": "by trivial", "id": "3"},
+    ]
+    kept_sft, duplicate_sft = deduplicate_training_records(sft_rows, workflow="sft")
+    assert [row["id"] for row in kept_sft] == ["1", "2"]
+    assert [row["id"] for row in duplicate_sft] == ["3"]
+
+    grpo_rows = [
+        {"lean_statement": "theorem a : True", "id": "1"},
+        {"lean_statement": "theorem a : True", "id": "2"},
+    ]
+    kept_grpo, duplicate_grpo = deduplicate_training_records(
+        grpo_rows,
+        workflow="grpo",
+    )
+    assert [row["id"] for row in kept_grpo] == ["1"]
+    assert [row["id"] for row in duplicate_grpo] == ["2"]
+
+    with pytest.raises(ValueError, match="proof/completion mismatch"):
+        deduplicate_training_records(
+            [
+                {
+                    "lean_statement": "theorem a : True",
+                    "proof": "by trivial",
+                    "completion": "by exact True.intro",
+                }
+            ],
+            workflow="sft",
+        )
+
+
+def test_statement_hash_preserves_proposition_level_let_assignments():
+    left = "theorem t : let x := 1; x = 1"
+    right = "theorem t : let x := 2; x = 2"
+
+    assert statement_hash(left) != statement_hash(right)
 
 
 def test_tuple_preamble_is_preserved_and_unknown_not_imported():
@@ -164,25 +217,82 @@ def test_workflow_specific_records_keep_targets_out_of_evaluation_and_grpo():
         },
         0,
     )
+    example = replace(example, pantograph_verified=True)
 
     sft_train = build_sft_training_record(example)
-    assert sft_train["lean_statement"] == "theorem formats : True"
-    assert sft_train["proof"] == "by\n  trivial"
-    assert sft_train["completion"] == sft_train["proof"]
+    assert set(sft_train) == {"prompt", "completion"}
+    assert "theorem formats : True" in sft_train["prompt"]
+    assert sft_train["prompt"].endswith(":= by sorry")
+    assert sft_train["completion"] == "by\n  trivial"
+    with pytest.raises(ValueError, match="not Pantograph verified"):
+        build_sft_training_record(replace(example, pantograph_verified=False))
 
     sft_eval = build_sft_evaluation_record(example)
-    grpo_train = build_grpo_training_record(example)
-    grpo_eval = build_grpo_evaluation_record(example)
+    grpo_example = NormalizedExample(
+        id="grpo-formats",
+        source="unit-grpo",
+        informal_statement="True is provable.",
+        lean_statement="theorem formats_grpo : True",
+        pantograph_verified=True,
+    )
+    grpo_train = build_grpo_training_record(grpo_example)
+    grpo_eval = build_grpo_evaluation_record(grpo_example)
+    assert sft_eval["lean_statement"] == "theorem formats : True"
     for record in (sft_eval, grpo_train, grpo_eval):
-        assert record["lean_statement"] == "theorem formats : True"
         assert "prompt" in record
         assert "proof" not in record
         assert "completion" not in record
         assert "text" not in record
 
-    expected_lengths = proof_length_metrics(example.proof)
-    assert grpo_train["reference_proof_length_tokens"] == expected_lengths["tokens"]
-    assert "reference_proof_hash" in grpo_train
+    for record in (grpo_train, grpo_eval):
+        assert record["lean_statement"] == "theorem formats_grpo : True"
+        assert record["schema_version"] == "grpo_data"
+        assert record["data_stage"] == "grpo"
+        assert record["split"] == "train"
+        assert record["verification_scope"] == "statement_only"
+        assert not any(key.startswith("reference_proof") for key in record)
+        assert "has_reference_proof" not in record
+
+    # The GRPO projection never inspects or exports an in-memory proof value.
+    proof_bearing_projection = build_grpo_training_record(example)
+    assert proof_bearing_projection["verification_scope"] == "statement_only"
+    assert "proof" not in proof_bearing_projection
+    assert "completion" not in proof_bearing_projection
+    assert not any(key.startswith("reference_proof") for key in proof_bearing_projection)
+
+
+def test_manifest_projection_is_verified_and_model_independent():
+    sft_example = NormalizedExample(
+        id="sft-manifest",
+        source="unit-sft",
+        informal_statement="True is provable.",
+        lean_statement="theorem manifest_sft : True",
+        proof="by trivial",
+        imports=("Mathlib",),
+        pantograph_verified=True,
+    )
+    sft = build_sft_general_data(sft_example)
+    assert sft["schema_version"] == "sft_manifest"
+    assert sft["lean_statement"] == "theorem manifest_sft : True"
+    assert sft["proof"] == "by trivial"
+    assert "prompt" not in sft and "completion" not in sft and "text" not in sft
+
+    grpo_example = NormalizedExample(
+        id="grpo-manifest",
+        source="unit-grpo",
+        informal_statement="True is provable.",
+        lean_statement="theorem manifest_grpo : True",
+        imports=("Mathlib",),
+        context_lines=("lemma support : True := by sorry",),
+        pantograph_verified=True,
+    )
+    grpo = build_grpo_general_data(grpo_example)
+    assert grpo["schema_version"] == "grpo_manifest"
+    assert grpo["context_lines"] == ["lemma support : True := by sorry"]
+    assert "proof" not in grpo and "completion" not in grpo
+
+    with pytest.raises(ValueError, match="contains a reference proof"):
+        build_grpo_general_data(sft_example)
 
 
 def test_grpo_overlap_filter_uses_statement_hash_not_record_id():
@@ -203,7 +313,7 @@ def test_grpo_overlap_filter_uses_statement_hash_not_record_id():
         source_name="test",
         require_proof=True,
     )
-    excluded_hash = build_sft_training_record(records[0])["statement_hash"]
+    excluded_hash = statement_hash(records[0].lean_statement)
     kept, excluded = exclude_statement_overlaps(records, {excluded_hash})
     assert [record.id for record in kept] == ["second"]
     assert [record.id for record in excluded] == ["first"]

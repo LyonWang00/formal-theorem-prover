@@ -17,7 +17,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from lean_prover.lean_training.data.lean_workbook import (
+from lean_prover.lean_training.data.adapters.lean_workbook import (
     reconstruct_lean_workbook_records,
     render_tactic_proof,
 )
@@ -279,7 +279,10 @@ def materialize_frozen_datasets(
             ],
         },
     }
-    _write_json(dataset_root / "dataset_manifest.json", manifest)
+    _write_json(
+        verified_dir / "leanworkbook_leandojo_materialization_report.json",
+        manifest,
+    )
     return manifest
 
 
@@ -392,7 +395,10 @@ def audit_materialized_datasets(*, dataset_root: Path) -> dict[str, Any]:
             "complete": len(wb_union) == 13_517 and wb_duplicate_ids == 0,
         },
     }
-    _write_json(dataset_root / "dataset_audit.json", report)
+    _write_json(
+        verified_dir / "leanworkbook_leandojo_contract_audit.json",
+        report,
+    )
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return report
 
@@ -736,31 +742,6 @@ def verify_remaining_leanworkbook(
         "runtime": runtime,
     }
     _write_json(report_path, report)
-    dataset_manifest_path = dataset_root / "dataset_manifest.json"
-    dataset_manifest = (
-        json.loads(dataset_manifest_path.read_text(encoding="utf-8"))
-        if dataset_manifest_path.exists()
-        else {"schema_version": HASH_SCHEMA_VERSION}
-    )
-    dataset_manifest["leanworkbook_full_verification"] = {
-        "raw_trajectory_rows": len(raw_rows),
-        "unique_theorem_records": len(reconstructed_rows),
-        "success_1": len(frozen_rows),
-        "success_2": len(output_success),
-        "fail_2": len(output_fail),
-        "complete_original_theorem_coverage": complete,
-        "environment_hash": identity["environment_hash"],
-        "report_path": str(report_path.resolve()),
-        "files": {
-            "success_1": {
-                "path": str(frozen_path.resolve()),
-                "sha256": sha256_file(frozen_path),
-            },
-            "success_2": report["outputs"]["success_2"],
-            "fail_2": report["outputs"]["fail_2"],
-        },
-    }
-    _write_json(dataset_manifest_path, dataset_manifest)
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return report
 

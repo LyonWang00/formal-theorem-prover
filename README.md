@@ -125,7 +125,7 @@ bash scripts/linux_sft_train_workflow.sh
 bash scripts/linux_benchmark_adapter_workflow.sh
 ```
 
-但如果你直接运行 Python 模块，例如直接调用 `benchmark_pipeline.py`，建议先手动 source runtime 环境。
+但如果你直接运行 Python 模块，例如直接调用 `evaluation.benchmark`，建议先手动 source runtime 环境。
 
 ## Preflight 检查
 
@@ -191,13 +191,14 @@ finally:
 
 | 文件 | 作用 |
 | --- | --- |
-| `prepare_datasets.py` | 适配 Lean-Workbook、miniF2F 和 generic Lean 数据。 |
+| `data/cli.py` | 通过专用 adapter 准备 SFT、GRPO 和 miniF2F benchmark 数据。 |
 | `check_data_leakage.py` | 检查 train、validation、benchmark 之间的 statement 泄露。 |
 | `sft.py` | 使用 TRL `SFTTrainer` 进行 QLoRA SFT。 |
-| `benchmark_pipeline.py` | vLLM 批量生成 + Pantograph pass@k 验证。 |
-| `pantograph_verifier.py` | 单个常驻 Pantograph verifier worker。 |
-| `verification_pool.py` | 多进程 verifier 调度。 |
-| `verification_schema.py` | verification task/result 数据结构。 |
+| `evaluation/benchmark.py` | Prover 的 miniF2F 批量生成、Pantograph pass@k 验证与报告。 |
+| `evaluation/rollout.py` | Prover 的 SFT/GRPO 训练数据 rollout 与统一报告。 |
+| `verification/pantograph.py` | 单个常驻 Pantograph verifier worker。 |
+| `verification/pool.py` | 多进程 verifier 调度。 |
+| `verification/schema.py` | verification task/result 数据结构。 |
 
 更详细的训练和评估命令见 `lean_prover/lean_training/README.md`。
 
@@ -206,7 +207,7 @@ finally:
 准备数据：
 
 ```bash
-python -m lean_prover.lean_training.prepare_datasets \
+python -m lean_prover.lean_training.data.cli \
   --train_dataset_name InternLM/Lean-Workbook \
   --train_output outputs/data/lean_workbook_train.jsonl \
   --benchmark_dataset_name path/to/minif2f/test.jsonl \
@@ -233,11 +234,11 @@ python -m lean_prover.lean_training.sft \
 评估：
 
 ```bash
-python -m lean_prover.lean_training.benchmark_pipeline \
+python -m lean_prover.lean_training.evaluation.benchmark \
   --model_name_or_path Qwen/Qwen2.5-0.5B-Instruct \
   --adapter_path outputs/runs/qwen2_5_0_5b_lean_sft \
-  --benchmark_file outputs/data/minif2f_benchmark.jsonl \
-  --output_dir outputs/benchmarks/qwen2_5_0_5b_minif2f \
+  --benchmark_file lean_prover/Dataset/final_data/minif2f_data.jsonl \
+  --output_dir lean_prover/Dataset/experiment_result \
   --generation_backend vllm \
   --generation_batch_size 4 \
   --pass_k 32 \

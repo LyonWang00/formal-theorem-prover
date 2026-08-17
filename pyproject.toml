@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A branching mathematical theorem prover for Lean 4"
 requires-python = ">=3.11,<3.13"
 dependencies = [
-    "openai>=1.0,<2",
+    "openai>=2.0,<3",
     "pantograph==0.3.15",
     "psutil>=5,<8",
     "pydantic>=2,<3",
@@ -25,3 +25,8 @@ include = ["lean_prover*"]
 
 [tool.uv.sources]
 pantograph = { git = "https://github.com/stanford-centaur/PyPantograph", tag = "v0.3.15" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "lean_prover"]
+norecursedirs = ["tools", "models", ".venv"]
+pythonpath = ["."]

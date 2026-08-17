@@ -16,7 +16,7 @@ from .audit import (
     tactic_signature,
 )
 from .contracts import DataState, LeanDataRecord, make_attestation_id, utc_now
-from .lean_workbook import reconstruct_lean_workbook_records
+from .adapters.lean_workbook import reconstruct_lean_workbook_records
 from .preparation import (
     ASSEMBLER_VERSION,
     NORMALIZATION_VERSION,

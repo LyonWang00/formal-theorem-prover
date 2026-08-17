@@ -264,7 +264,7 @@ BENCHMARK_FILE="$LOG_DIR/benchmark4.jsonl"
 LOCAL_MINIF2F="$LINUX_PROJECT/.cache/datasets/minif2f/test.jsonl"
 if [ -f "$LOCAL_MINIF2F" ]; then
   echo "using local miniF2F dataset: $LOCAL_MINIF2F"
-  "$PY" -m lean_prover.lean_training.prepare_datasets \
+  "$PY" -m lean_prover.lean_training.data.cli \
     --benchmark_dataset_name "$LOCAL_MINIF2F" \
     --benchmark_sample_size 4 \
     --benchmark_output "$BENCHMARK_FILE" \
@@ -274,7 +274,7 @@ if [ -f "$LOCAL_MINIF2F" ]; then
     }
 else
   echo "local miniF2F dataset missing: $LOCAL_MINIF2F"
-  "$PY" -m lean_prover.lean_training.prepare_datasets \
+  "$PY" -m lean_prover.lean_training.data.cli \
     --benchmark_dataset_name miniF2F \
     --benchmark_sample_size 4 \
     --benchmark_output "$BENCHMARK_FILE" \
@@ -295,7 +295,7 @@ ADAPTER="$WINDOWS_ROOT/outputs/runs/large_20260710_133248/adapter"
 
 step "Small pipeline test: base model"
 BASE_OUT="$LOG_DIR/base_pantograph"
-timeout 5400 "$PY" -m lean_prover.lean_training.benchmark_pipeline \
+timeout 5400 "$PY" -m lean_prover.lean_training.evaluation.benchmark \
   --model_name_or_path "$MODEL" \
   --benchmark_file "$BENCHMARK_FILE" \
   --output_dir "$BASE_OUT" \
@@ -318,7 +318,7 @@ timeout 5400 "$PY" -m lean_prover.lean_training.benchmark_pipeline \
 step "Small pipeline test: adapter model"
 ADAPTER_OUT="$LOG_DIR/adapter_pantograph"
 if [ "${RUN_ADAPTER_TEST:-0}" = "1" ] && [ -d "$ADAPTER" ]; then
-  timeout 5400 "$PY" -m lean_prover.lean_training.benchmark_pipeline \
+  timeout 5400 "$PY" -m lean_prover.lean_training.evaluation.benchmark \
     --model_name_or_path "$MODEL" \
     --adapter_path "$ADAPTER" \
     --benchmark_file "$BENCHMARK_FILE" \

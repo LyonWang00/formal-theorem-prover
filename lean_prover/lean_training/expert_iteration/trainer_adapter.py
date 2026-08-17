@@ -59,6 +59,7 @@ class SFTTrainerAdapter:
             model_name_or_path=initialization_checkpoint,
             adapter_path=adapter_path,
             train_file=train_path,
+            train_manifest_file=str(Path(train_path).with_name("train_manifest.jsonl")),
             validation_file=eval_path,
             output_dir=output_dir,
             sample_weight_field="sample_weight",

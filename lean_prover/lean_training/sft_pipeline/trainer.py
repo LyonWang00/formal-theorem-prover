@@ -1,8 +1,9 @@
 ﻿"""QLoRA SFT entry point for prepared Lean proof data.
 
 This script is training-only. Dataset downloading, sampling, schema adaptation,
-and proof filtering live in ``prepare_datasets.py``. The expected input here is
-a JSON/JSONL file whose rows already contain a supervised ``text`` field.
+and proof filtering live in ``lean_training.data.cli``. The expected input here is
+a JSON/JSONL file whose rows contain only ``prompt`` and ``completion`` (plus an
+optional sampling-weight column), paired with a rich verified manifest sidecar.
 
 Example:
 
@@ -29,8 +30,13 @@ from lean_prover.lean_training.data.contracts import make_attestation_id
 from lean_prover.lean_training.data.preparation import (
     ASSEMBLER_VERSION,
     NORMALIZATION_VERSION,
+    proof_hash,
+    statement_hash,
 )
-from lean_prover.lean_training.data.training import load_prepared_dataset
+from lean_prover.lean_training.data.training import (
+    build_generation_prompt,
+    load_prepared_dataset,
+)
 from lean_prover.lean_training.modeling.lora import build_sft_lora_config
 from lean_prover.lean_training.modeling.quantization import build_qlora_model, qlora_compute_dtype
 from lean_prover.lean_training.modeling.runtime import package_version, set_reproducible_seeds
@@ -186,6 +192,22 @@ def parse_args() -> SFTTrainConfig:
     parser.add_argument("--adapter_path", default=None)
     parser.add_argument("--train_file", required=True)
     parser.add_argument("--validation_file", default=None)
+    parser.add_argument(
+        "--train_manifest_file",
+        default=None,
+        help=(
+            "Rich verified manifest paired with the minimal train JSONL. "
+            "Defaults to <train_file stem>.manifest.jsonl."
+        ),
+    )
+    parser.add_argument(
+        "--validation_manifest_file",
+        default=None,
+        help=(
+            "Rich verified manifest paired with the minimal validation JSONL. "
+            "Defaults to <validation_file stem>.manifest.jsonl."
+        ),
+    )
     parser.add_argument("--prompt_field", default="prompt")
     parser.add_argument("--completion_field", default="completion")
     parser.add_argument("--sample_weight_field", default=None)
@@ -254,6 +276,8 @@ def parse_args() -> SFTTrainConfig:
         adapter_path=args.adapter_path,
         train_file=args.train_file,
         validation_file=args.validation_file,
+        train_manifest_file=args.train_manifest_file,
+        validation_manifest_file=args.validation_manifest_file,
         prompt_field=args.prompt_field,
         completion_field=args.completion_field,
         sample_weight_field=args.sample_weight_field,
@@ -314,7 +338,7 @@ def ensure_prompt_completion_fields(
     Raises:
         ValueError: If either required column is absent.
     """
-    required = (prompt_field, completion_field, "lean_statement", "proof")
+    required = (prompt_field, completion_field)
     missing = [field for field in required if field not in dataset.column_names]
     if missing:
         raise ValueError(
@@ -342,7 +366,7 @@ def validate_pantograph_attestation(dataset: Dataset, *, name: str) -> None:
     if field not in dataset.column_names:
         raise ValueError(
             f"{name} dataset has no {field!r} column; regenerate it with "
-            "prepare_datasets.py --verify_with_pantograph"
+            "lean_training.data.cli --verify_with_pantograph"
         )
     rejected = sum(value is not True for value in dataset[field])
     if rejected:
@@ -404,6 +428,106 @@ def validate_pantograph_attestation(dataset: Dataset, *, name: str) -> None:
         )
 
 
+def default_sft_manifest_path(training_file: str | Path) -> Path:
+    """Return the conventional rich-manifest sidecar for a minimal SFT file."""
+
+    path = Path(training_file).expanduser()
+    return path.with_name(f"{path.stem}.manifest{path.suffix}")
+
+
+def validate_sft_manifest_projection(
+    dataset: Dataset,
+    *,
+    manifest_file: str | Path,
+    prompt_field: str,
+    completion_field: str,
+    sample_weight_field: str | None = None,
+    name: str,
+) -> None:
+    """Bind a two-column SFT dataset to its verified rich manifest."""
+
+    allowed_columns = {prompt_field, completion_field}
+    if sample_weight_field:
+        allowed_columns.add(sample_weight_field)
+    unexpected = sorted(set(dataset.column_names) - allowed_columns)
+    if unexpected:
+        raise ValueError(
+            f"{name} minimal SFT projection has unexpected columns {unexpected}"
+        )
+    manifest = load_prepared_dataset(str(manifest_file))
+    if len(dataset) != len(manifest):
+        raise ValueError(
+            f"{name} SFT projection has {len(dataset)} rows but its manifest has "
+            f"{len(manifest)} rows"
+        )
+    for index, (training_row, manifest_row) in enumerate(zip(dataset, manifest)):
+        statement = str(manifest_row.get("lean_statement") or "").strip()
+        proof = str(manifest_row.get("proof") or "").strip()
+        invalid: list[str] = []
+        if manifest_row.get("schema_version") != "sft_manifest":
+            invalid.append("schema_version")
+        if manifest_row.get("pantograph_verified") is not True:
+            invalid.append("pantograph_verified")
+        if manifest_row.get("verification_scope") != "full_proof":
+            invalid.append("verification_scope")
+        if (
+            not statement
+            or manifest_row.get("statement_hash") != statement_hash(statement)
+        ):
+            invalid.append("statement_hash")
+        if not proof or manifest_row.get("proof_hash") != proof_hash(proof):
+            invalid.append("proof_hash")
+        if invalid:
+            raise ValueError(
+                f"{name} manifest row {index} has invalid verification fields {invalid}"
+            )
+        expected_prompt = build_generation_prompt(manifest_row)
+        if str(training_row[prompt_field]) != expected_prompt:
+            raise ValueError(
+                f"{name} SFT projection row {index} does not match its manifest prompt"
+            )
+        if str(training_row[completion_field]).strip() != proof:
+            raise ValueError(
+                f"{name} SFT projection row {index} does not match its manifest proof"
+            )
+
+
+def validate_sft_verification_contract(
+    dataset: Dataset,
+    *,
+    training_file: str | Path,
+    manifest_file: str | Path | None,
+    prompt_field: str,
+    completion_field: str,
+    sample_weight_field: str | None,
+    name: str,
+) -> None:
+    """Validate a minimal projection via sidecar, with legacy-row fallback."""
+
+    resolved_manifest = (
+        Path(manifest_file).expanduser()
+        if manifest_file is not None
+        else default_sft_manifest_path(training_file)
+    )
+    if resolved_manifest.exists():
+        validate_sft_manifest_projection(
+            dataset,
+            manifest_file=resolved_manifest,
+            prompt_field=prompt_field,
+            completion_field=completion_field,
+            sample_weight_field=sample_weight_field,
+            name=name,
+        )
+        return
+    if "pantograph_verified" in dataset.column_names:
+        validate_pantograph_attestation(dataset, name=name)
+        return
+    raise ValueError(
+        f"{name} uses the minimal SFT schema but verified manifest sidecar "
+        f"{resolved_manifest} does not exist"
+    )
+
+
 def validate_dataset_lengths(
     dataset: Dataset,
     tokenizer,
@@ -435,7 +559,7 @@ def validate_dataset_lengths(
                 raise ValueError(
                     f"{name} dataset row {index} has {token_count} tokens, "
                     f"exceeding max_seq_length={config.max_seq_length}. "
-                    "Run prepare_datasets.py with --filter_overlength or pass "
+                    "Run lean_training.data.cli with --filter_overlength or pass "
                     "--allow_overlength explicitly."
                 )
     if overlength:
@@ -784,9 +908,25 @@ def build_trainer(
             name="validation",
         )
     if config.require_pantograph_verified:
-        validate_pantograph_attestation(train_dataset, name="train")
+        validate_sft_verification_contract(
+            train_dataset,
+            training_file=config.train_file,
+            manifest_file=config.train_manifest_file,
+            prompt_field=config.prompt_field,
+            completion_field=config.completion_field,
+            sample_weight_field=config.sample_weight_field,
+            name="train",
+        )
         if validation_dataset is not None:
-            validate_pantograph_attestation(validation_dataset, name="validation")
+            validate_sft_verification_contract(
+                validation_dataset,
+                training_file=config.validation_file or "",
+                manifest_file=config.validation_manifest_file,
+                prompt_field=config.prompt_field,
+                completion_field=config.completion_field,
+                sample_weight_field=None,
+                name="validation",
+            )
     elif distributed_context.is_main_process:
         print(
             "DANGER_UNVERIFIED_SFT: Pantograph attestation enforcement is disabled; "
@@ -1028,7 +1168,7 @@ def save_tokenization_diagnostics(
             samples.append(
                 {
                     "index": index,
-                    "statement": raw.get("lean_statement"),
+                    "prompt": raw.get(config.prompt_field),
                     "proof": raw.get(config.completion_field),
                     "formatted_text": str(raw[config.prompt_field])
                     + str(raw[config.completion_field]),

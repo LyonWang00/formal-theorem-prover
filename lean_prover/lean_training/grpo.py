@@ -1,7 +1,7 @@
 """GRPO training entry point for prepared Lean proof prompts.
 
 This script is training-only. Dataset downloading, sampling, schema adaptation,
-and proof filtering live in ``prepare_datasets.py``. The expected input here is
+and filtering live in ``lean_training.data.cli``. The expected input here is
 a JSON/JSONL file whose rows contain proof-free ``prompt`` records plus the
 ``lean_statement`` and preamble fields needed to score generated proofs.
 """
@@ -23,12 +23,12 @@ from datasets import Dataset, load_dataset
 from peft import LoraConfig, prepare_model_for_kbit_training
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-from lean_prover.lean_training.prepare_datasets import (
+from lean_prover.lean_training.data.preparation import (
     build_lean_source_with_preamble,
     compose_lean_theorem,
     contains_forbidden_proof_token,
 )
-from lean_prover.lean_training.pantograph_verifier import PantographTheoremVerifier
+from lean_prover.lean_training.verification.pantograph import PantographTheoremVerifier
 
 
 @dataclass(frozen=True)
@@ -483,7 +483,7 @@ def validate_dataset_prompts(
             raise ValueError(
                 f"{name} dataset row {index} prompt has {token_count} tokens, "
                 f"exceeding max_prompt_length={config.max_prompt_length}. "
-                "Run prepare_datasets.py with --filter_overlength or raise "
+                "Run lean_training.data.cli with --filter_overlength or raise "
                 "--max_prompt_length."
             )
     if overlength:

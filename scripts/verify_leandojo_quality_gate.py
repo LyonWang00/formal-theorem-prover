@@ -11,7 +11,7 @@ from typing import Any
 
 from lean_prover.lean_training.data.audit import classify_verification_failure
 from lean_prover.lean_training.data.contracts import DataState, LeanDataRecord
-from lean_prover.lean_training.data.leandojo import (
+from lean_prover.lean_training.data.adapters.leandojo import (
     corpus_key,
     iter_json_array,
     leandojo_prompt_statement,

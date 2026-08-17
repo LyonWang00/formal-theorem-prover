@@ -8,7 +8,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
-from lean_prover.lean_training.prepare_datasets import statement_hash
+from lean_prover.lean_training.data.preparation import statement_hash
 
 
 def read_records(path: str | None) -> list[dict[str, Any]]:

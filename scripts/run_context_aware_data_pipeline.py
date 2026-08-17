@@ -29,13 +29,13 @@ from lean_prover.lean_training.data.contracts import (
     make_attestation_id,
     utc_now,
 )
-from lean_prover.lean_training.data.lean_workbook import (
+from lean_prover.lean_training.data.adapters.lean_workbook import (
     reconstruct_lean_workbook_records,
 )
 from lean_prover.lean_training.data.lean_workbook_context_builder import (
     build_lean_workbook_context,
 )
-from lean_prover.lean_training.data.leandojo import (
+from lean_prover.lean_training.data.adapters.leandojo import (
     corpus_key,
     iter_json_array,
     load_corpus_declarations,

@@ -25,7 +25,7 @@ import zipfile
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any, Iterable, Mapping, Sequence
 
 import torch
 from transformers import (
@@ -62,6 +62,7 @@ class BenchmarkRecord:
     lean_statement: str
     imports: tuple[str, ...]
     context_lines: tuple[str, ...] = ()
+    statement_hash: str = ""
 
 
 @dataclass
@@ -255,7 +256,9 @@ def build_run_manifest(args: argparse.Namespace) -> dict[str, Any]:
         "imports": list(args.imports),
         "lean_timeout": args.lean_timeout,
         "code_git_commit": git_commit(repo_root),
-        "early_stop_on_success": True,
+        "early_stop_on_success": bool(
+            getattr(args, "early_stop_on_success", False)
+        ),
     }
 
 
@@ -888,6 +891,12 @@ def read_benchmark_records(path: str, limit: int | None) -> list[BenchmarkRecord
                         or (row.get("preamble") or {}).get("context_lines")
                         or ()
                     ),
+                    statement_hash=str(
+                        row.get("statement_hash")
+                        or hashlib.sha256(
+                            str(row["lean_statement"]).encode("utf-8")
+                        ).hexdigest()
+                    ),
                 )
             )
             if limit is not None and len(records) >= limit:
@@ -1007,12 +1016,18 @@ def problem_summary_row(state: ProblemState) -> dict[str, Any]:
     Returns:
         A JSON-serializable problem result row.
     """
+    ordered = sorted(state.results, key=lambda item: item["attempt_index"])
+    successful_attempts = sum(bool(item.get("success")) for item in ordered)
     return {
         "problem_id": state.problem_id,
         "prompt": state.prompt,
         "success": state.success,
         "num_attempts_recorded": len(state.results),
-        "attempts": sorted(state.results, key=lambda item: item["attempt_index"]),
+        "successful_attempts": successful_attempts,
+        "attempt_success_rate": (
+            successful_attempts / len(ordered) if ordered else 0.0
+        ),
+        "attempts": ordered,
     }
 
 
@@ -1040,6 +1055,139 @@ def pass_at_counts(states: Mapping[str, ProblemState], max_k: int) -> dict[str, 
                 successes += 1
         values[f"pass@{k}"] = successes / total if total else 0.0
     return values
+
+
+def _attempt_error_type(result: Mapping[str, Any]) -> str:
+    if result.get("success"):
+        return "success"
+    if result.get("timed_out"):
+        return "timeout"
+    rejected = str(result.get("rejected_reason") or "").strip()
+    if rejected:
+        return "rejected"
+    explicit = str(result.get("compile_error_type") or "").strip()
+    if explicit:
+        return explicit
+    if result.get("compile_errors"):
+        return "lean_compilation"
+    return str(result.get("status") or "backend_error")
+
+
+def standardized_result_rows(
+    states: Mapping[str, ProblemState],
+) -> list[dict[str, Any]]:
+    """Flatten attempts while attaching their final problem-level success rate."""
+
+    rows: list[dict[str, Any]] = []
+    for state in states.values():
+        attempts = sorted(state.results, key=lambda item: item["attempt_index"])
+        successful_attempts = sum(bool(item.get("success")) for item in attempts)
+        attempt_rate = successful_attempts / len(attempts) if attempts else 0.0
+        for attempt in attempts:
+            rows.append(
+                {
+                    "problem_id": state.problem_id,
+                    "attempt_id": attempt.get("attempt_id"),
+                    "attempt_index": attempt.get("attempt_index"),
+                    "statement_hash": attempt.get("statement_hash"),
+                    "assembled_source_hash": attempt.get("assembled_source_hash"),
+                    "success": bool(attempt.get("success")),
+                    "status": attempt.get("status"),
+                    "error_type": _attempt_error_type(attempt),
+                    "diagnostics": attempt.get("diagnostics") if not attempt.get("success") else "",
+                    "compile_errors": attempt.get("compile_errors") or [],
+                    "compile_warnings": attempt.get("compile_warnings") or [],
+                    "timed_out": bool(attempt.get("timed_out")),
+                    "generated_proof": attempt.get("generated_proof"),
+                    "raw_completion": attempt.get("raw_completion"),
+                    "verification_seconds": attempt.get("verification_seconds"),
+                    "generation_seconds": attempt.get("generation_seconds"),
+                    "problem_success": state.success,
+                    "problem_successful_attempts": successful_attempts,
+                    "problem_attempts": len(attempts),
+                    "problem_attempt_success_rate": attempt_rate,
+                }
+            )
+    return sorted(
+        rows,
+        key=lambda item: (str(item["problem_id"]), int(item["attempt_index"] or 0)),
+    )
+
+
+def augment_summary(
+    summary: Mapping[str, Any],
+    states: Mapping[str, ProblemState],
+    *,
+    pass_k: int,
+) -> dict[str, Any]:
+    """Add exact attempt-rate histograms and failure classifications."""
+
+    attempts = [item for state in states.values() for item in state.results]
+    successful_attempts = sum(bool(item.get("success")) for item in attempts)
+    successful_problems = sum(state.success for state in states.values())
+    histogram = Counter()
+    for state in states.values():
+        count = sum(bool(item.get("success")) for item in state.results)
+        histogram[f"{count}/{pass_k}"] += 1
+    errors = Counter(
+        _attempt_error_type(item) for item in attempts if not item.get("success")
+    )
+    enriched = dict(summary)
+    enriched.update(
+        {
+            "problem_count": len(states),
+            "successful_problem_count": successful_problems,
+            "problem_success_rate": (
+                successful_problems / len(states) if states else 0.0
+            ),
+            "attempt_count": len(attempts),
+            "successful_attempt_count": successful_attempts,
+            "attempt_success_rate": (
+                successful_attempts / len(attempts) if attempts else 0.0
+            ),
+            "problem_attempt_success_histogram": {
+                f"{count}/{pass_k}": histogram.get(f"{count}/{pass_k}", 0)
+                for count in range(pass_k + 1)
+            },
+            "error_type_counts": dict(sorted(errors.items())),
+        }
+    )
+    return enriched
+
+
+def write_standard_artifacts(
+    output_dir: str | Path,
+    workflow_kind: str,
+    states: Mapping[str, ProblemState],
+    summary: Mapping[str, Any],
+    *,
+    pass_k: int,
+) -> dict[str, Any]:
+    """Write canonical per-attempt JSONL and aggregate report files."""
+
+    if workflow_kind not in {"benchmark", "sft_rollout", "grpo_rollout"}:
+        raise ValueError(f"unsupported evaluation workflow: {workflow_kind}")
+    destination = Path(output_dir)
+    destination.mkdir(parents=True, exist_ok=True)
+    result_path = destination / f"{workflow_kind}_results.jsonl"
+    report_path = destination / f"{workflow_kind}_report.json"
+    rows = standardized_result_rows(states)
+    with result_path.open("w", encoding="utf-8", newline="\n") as handle:
+        for row in rows:
+            handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+    report = augment_summary(summary, states, pass_k=pass_k)
+    report.update(
+        {
+            "workflow_kind": workflow_kind,
+            "results_file": str(result_path),
+            "report_file": str(report_path),
+        }
+    )
+    report_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return report
 
 
 def iter_generation_batches(
@@ -1140,6 +1288,7 @@ def run_pipeline(
     args: argparse.Namespace,
     *,
     verification_pool: VerificationPool | None = None,
+    records: list[BenchmarkRecord] | None = None,
 ) -> dict[str, Any]:
     """Run generation, Pantograph verification, persistence, and aggregation.
 
@@ -1156,7 +1305,9 @@ def run_pipeline(
         Pantograph worker processes.
     """
     start = time.monotonic()
-    records = read_benchmark_records(args.benchmark_file, args.num_benchmark_samples)
+    records = records or read_benchmark_records(
+        args.benchmark_file, args.num_benchmark_samples
+    )
     output_dir = Path(args.output_dir)
     validate_or_write_manifest(args, output_dir)
     completed_problem_rows = (
@@ -1177,14 +1328,20 @@ def run_pipeline(
         if problem_id in states:
             states[problem_id].results = list(row.get("attempts") or [])
             states[problem_id].success = bool(row.get("success"))
-            states[problem_id].canceled = bool(row.get("success"))
+            states[problem_id].canceled = bool(
+                row.get("success")
+                and getattr(args, "early_stop_on_success", False)
+            )
     for problem_id, attempts in existing_attempt_rows.items():
         if problem_id in states and problem_id not in completed_problem_ids:
             states[problem_id].results = list(attempts.values())
             if any(row.get("success") for row in attempts.values()):
                 states[problem_id].success = True
-                states[problem_id].canceled = True
-                completed_problem_ids.add(problem_id)
+                states[problem_id].canceled = bool(
+                    getattr(args, "early_stop_on_success", False)
+                )
+                if states[problem_id].canceled:
+                    completed_problem_ids.add(problem_id)
     warmup_reports: list[dict[str, Any]] = []
     fatal_errors: list[str] = []
     recovered_worker_failures: list[str] = []
@@ -1227,7 +1384,9 @@ def run_pipeline(
             "successes": successes,
             f"pass@{args.pass_k}": successes / len(records) if records else 0.0,
             "pass_at": pass_at,
-            "early_stop_on_success": True,
+            "early_stop_on_success": bool(
+                getattr(args, "early_stop_on_success", False)
+            ),
             "queued_attempts": 0,
             "rejected_attempts": 0,
             "recorded_attempt_results": len(all_results),
@@ -1245,6 +1404,13 @@ def run_pipeline(
         }
         for problem_id in sorted(completed_problem_ids):
             print(f"RESUME_SKIP problem_id={problem_id}", flush=True)
+        summary = write_standard_artifacts(
+            output_dir,
+            getattr(args, "workflow_kind", "benchmark"),
+            states,
+            summary,
+            pass_k=args.pass_k,
+        )
         store.write_summary(summary)
         store.close()
         return summary
@@ -1260,7 +1426,7 @@ def run_pipeline(
         result_counter += 1
         if bool(result.get("success")):
             state.success = True
-            state.canceled = True
+            state.canceled = bool(getattr(args, "early_stop_on_success", False))
         store.write_attempt_json(result)
         if bool(result.get("success")):
             store.write_success_attempt(success_attempt_row(result))
@@ -1282,7 +1448,9 @@ def run_pipeline(
                 num_workers=args.num_workers,
                 queue_maxsize=args.queue_maxsize,
                 disable_warmup=args.disable_warmup,
-                cancel_on_success=True,
+                cancel_on_success=bool(
+                    getattr(args, "early_stop_on_success", False)
+                ),
             )
         )
         verification_pool.start()
@@ -1320,6 +1488,13 @@ def run_pipeline(
             "total_seconds": round(time.monotonic() - start, 4),
         }
         summary["attempt_shards_archive"] = str(store.package_attempt_shards())
+        summary = write_standard_artifacts(
+            output_dir,
+            getattr(args, "workflow_kind", "benchmark"),
+            states,
+            summary,
+            pass_k=args.pass_k,
+        )
         store.write_summary(summary)
         store.close()
         return summary
@@ -1393,6 +1568,7 @@ def run_pipeline(
                 "assembler_version": ASSEMBLER_VERSION,
                 "normalization_version": NORMALIZATION_VERSION,
                 "statement": record.lean_statement,
+                "statement_hash": record.statement_hash,
                 "generation_batch_seconds": generated.get(
                     "generation_batch_seconds"
                 ),
@@ -1565,7 +1741,9 @@ def run_pipeline(
         "successes": successes,
         f"pass@{args.pass_k}": successes / len(records) if records else 0.0,
         "pass_at": pass_at,
-        "early_stop_on_success": True,
+        "early_stop_on_success": bool(
+            getattr(args, "early_stop_on_success", False)
+        ),
         "queued_attempts": queued_count,
         "rejected_attempts": rejected_count,
         "verified_attempts": sum(
@@ -1624,25 +1802,48 @@ def run_pipeline(
         "total_seconds": round(time.monotonic() - start, 4),
     }
     summary["attempt_shards_archive"] = str(store.package_attempt_shards())
+    summary = write_standard_artifacts(
+        output_dir,
+        getattr(args, "workflow_kind", "benchmark"),
+        states,
+        summary,
+        pass_k=args.pass_k,
+    )
     store.write_summary(summary)
     store.close()
     return summary
 
 
-def parse_args() -> argparse.Namespace:
-    """Parse CLI options and normalize the comma-separated imports value.
+def build_argument_parser() -> argparse.ArgumentParser:
+    """Build the shared Prover generation/Pantograph argument parser."""
 
-    Returns:
-        Benchmark arguments with ``imports`` represented as a tuple of module names.
-    """
     default_project = Path(__file__).resolve().parents[3] / "lean_project"
-    parser = argparse.ArgumentParser(description="Async Lean SFT benchmark pipeline.")
+    repo_root = default_project.parent
+    dataset_root = repo_root / "lean_prover" / "Dataset"
+    parser = argparse.ArgumentParser(
+        description="Prover-only miniF2F benchmark with parallel Pantograph verification."
+    )
     parser.add_argument("--model_name_or_path", required=True)
     parser.add_argument("--adapter_path", default=None)
-    parser.add_argument("--benchmark_file", required=True)
-    parser.add_argument("--output_dir", required=True)
+    parser.add_argument(
+        "--benchmark_file",
+        default=str(dataset_root / "final_data" / "minif2f_data.jsonl"),
+    )
+    parser.add_argument(
+        "--output_dir",
+        default=str(dataset_root / "experiment_result"),
+    )
     parser.add_argument("--num_benchmark_samples", type=int, default=None)
     parser.add_argument("--pass_k", type=int, default=4)
+    parser.add_argument(
+        "--early_stop_on_success",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help=(
+            "Stop remaining attempts after the first success. Disabled by default "
+            "so exact 0/k..k/k problem histograms remain meaningful."
+        ),
+    )
     parser.add_argument("--num_workers", type=int, default=2)
     parser.add_argument("--queue_maxsize", type=int, default=128)
     parser.add_argument(
@@ -1688,8 +1889,18 @@ def parse_args() -> argparse.Namespace:
         default=os.environ.get("LEAN_PROJECT_PATH", str(default_project)),
     )
     parser.add_argument("--imports", default="Mathlib")
-    args = parser.parse_args()
+    return parser
+
+
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    """Parse benchmark CLI options and normalize runtime values."""
+
+    parser = build_argument_parser()
+    args = parser.parse_args(argv)
     args.imports = tuple(item.strip() for item in args.imports.split(",") if item.strip())
+    if args.pass_k < 1:
+        parser.error("--pass_k must be positive")
+    args.workflow_kind = "benchmark"
     return args
 
 

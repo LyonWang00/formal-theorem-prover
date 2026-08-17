@@ -8,7 +8,7 @@ from lean_prover.lean_training.data.contracts import (
     LeanDataRecord,
     make_attestation_id,
 )
-from lean_prover.lean_training.data.lean_workbook import (
+from lean_prover.lean_training.data.adapters.lean_workbook import (
     reconstruct_lean_workbook_records,
 )
 from lean_prover.lean_training.data.verified_builder import (

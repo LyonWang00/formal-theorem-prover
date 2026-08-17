@@ -7,6 +7,14 @@
 ```text
 lean_training/
 ├── data/                       # 共享数据层
+│   ├── adapters/              # 数据源及角色专用 adapter
+│   │   ├── __init__.py        # 注册表与统一导出
+│   │   ├── common.py          # 共享解析和 verified-scope 门禁
+│   │   ├── numinamath.py      # NuminaMath SFT + GRPO
+│   │   ├── kimina.py          # Kimina GRPO
+│   │   ├── minif2f.py         # miniF2F benchmark
+│   │   ├── lean_workbook.py   # Lean-Workbook SFT/轨迹重建
+│   │   └── leandojo.py        # LeanDojo SFT/轨迹重建
 │   ├── preparation.py          # 通用读取、标准化、过滤、切分、Pantograph 校验与 JSONL 导出
 │   ├── training.py             # SFT/GRPO/评估格式生成、proof 长度元数据与跨阶段去重
 │   └── cli.py                  # 数据准备命令的参数解析与输出编排
@@ -34,8 +42,9 @@ lean_training/
 │   ├── config.py               # GRPOTrainConfig
 │   ├── rewards.py              # 编译、结构、简短性奖励及 Pantograph 错误提取
 │   └── trainer.py              # 参数解析、数据检查、GRPOTrainer 构建与训练入口
-├── evaluation/                 # SFT、GRPO 和基座模型共用的离线评估
-│   └── benchmark.py            # 生成、Pantograph 验证、断点续跑与 pass@k 汇总
+├── evaluation/                 # Prover 的 benchmark 与训练后 rollout
+│   ├── benchmark.py            # miniF2F 生成、并行验证、pass@k 与结果汇总
+│   └── rollout.py              # SFT/GRPO final_data 的统一 rollout 门面
 ├── expert_iteration/           # 可恢复的多轮 SFT 专家迭代
 │   ├── config.py               # YAML/JSON 配置与跨字段校验
 │   ├── schemas.py              # 数据角色、Bank、生成/验证与轮次状态 Schema
@@ -48,40 +57,47 @@ lean_training/
 │   ├── trainer_adapter.py      # 复用现有 QLoRA SFTTrainer
 │   ├── evaluation_adapter.py   # monitor 与最终 benchmark 适配器
 │   └── orchestrator.py         # 阶段状态机、恢复、停止与 checkpoint 选择
-├── prepare_datasets.py         # 兼容 CLI，转发到 data.cli
 ├── sft.py                      # 兼容 CLI，转发到 sft_pipeline.trainer
-├── grpo.py                     # 兼容 CLI，转发到 grpo_pipeline.trainer
-├── benchmark_pipeline.py       # 兼容 CLI，转发到 evaluation.benchmark
-├── pantograph_verifier.py      # 旧导入路径兼容层
-├── verification_pool.py        # 旧导入路径兼容层
-└── verification_schema.py      # 旧导入路径兼容层
+└── grpo.py                     # 兼容 CLI，转发到 grpo_pipeline.trainer
 ```
 
-`benchmark_pantograph.py`、`benchmark_simple.py` 用于 Pantograph/Lean 环境诊断和简单性能测试；`check_data_leakage.py` 用于检查训练、验证和基准数据之间的定理泄漏。它们不是正式训练入口。
+`benchmark_pantograph.py` 仅用于 Pantograph/Lean 环境诊断和性能测试；`check_data_leakage.py` 用于检查训练、验证和基准数据之间的定理泄漏。它们不是正式训练入口。
 
 ## 模块边界与数据流
 
 ```text
-原始数据
-  └─ data.preparation
-       ├─ SFT 数据（prompt + completion） ── sft_pipeline
-       └─ GRPO 数据（prompt + lean_statement） ── grpo_pipeline
-                                                   └─ rewards ── verification
+原始/verified 数据
+  └─ data.adapters → data.preparation → Pantograph
+       ├─ SFT manifest（statement + proof + provenance）
+       │    └─ data.training → prompt + completion ── sft_pipeline
+       └─ GRPO manifest（statement-only + provenance）
+            └─ data.training → prompt + lean_statement ── grpo_pipeline
+                                                        └─ rewards ── verification
 
 基座模型 / SFT adapter / GRPO adapter
   └─ evaluation.benchmark ── verification ── pass@k 与明细结果
 ```
 
-- `data/preparation.py` 只处理与训练方法无关的读取、标准化、过滤、切分和 Lean 校验；`data/training.py` 是唯一的 SFT、GRPO 与生成评估记录格式实现。
+- `data/adapters/` 处理数据源字段和角色契约；`data/preparation.py` 只处理通用读取、调度、过滤、切分和 Lean 校验；`data/training.py` 是唯一的 SFT、GRPO 与生成评估记录格式及跨文件去重实现。
+- SFT 去重键为 `(normalized lean_statement, normalized proof)`，保留同题不同证明；GRPO 去重键仅为 normalized `lean_statement`。
 - `modeling/tokenizer.py` 和 `modeling/quantization.py` 由两种训练共享；`modeling/lora.py` 提供独立的 `build_sft_lora_config` 与 `build_grpo_lora_config`，两边可分别演进超参数。
 - `verification` 是唯一的 Pantograph 编译验证实现，既供数据校验和 GRPO reward 使用，也供离线 benchmark 使用。
 - `evaluation` 与训练方法无关，通过可选的 LoRA adapter 路径评估基座、SFT 或 GRPO 模型。
 - 顶层同名脚本只用于保留已有命令和外部导入兼容性，不包含第二份业务实现。新代码应优先导入包内规范路径。
 
+现阶段仍保留一条 legacy SFT 路径：`data/verified_builder.py` 为
+Lean-Workbook/LeanDojo 生成带完整 `LeanDataRecord` 与环境 attestation 的富记录。
+这些富记录属于审计/迁移层，不应直接成为长期训练格式。新 `data.cli` 会同时
+写出两个文件：富 `sft_manifest` (`SFTGeneralData`) sidecar，以及只含 `prompt`、`completion`
+的 trainer-facing JSONL。SFT trainer 默认把两者逐行绑定校验；legacy 富训练行
+仍可作为过渡输入，但新数据不得再向训练行添加 provenance、hash、验证回执或
+重复的 `text`/`proof` 字段。
+
 ## 规范导入路径
 
 ```python
 from lean_prover.lean_training.data.preparation import normalize_records
+from lean_prover.lean_training.data.adapters import get_adapter
 from lean_prover.lean_training.data.training import build_grpo_training_record
 from lean_prover.lean_training.modeling.quantization import build_qlora_model
 from lean_prover.lean_training.modeling.lora import build_grpo_lora_config
@@ -95,14 +111,20 @@ from lean_prover.lean_training.evaluation.benchmark import run_pipeline
 
 ## 数据约定
 
-SFT 训练记录必须包含监督目标：
+SFT trainer-facing 记录固定为两个字段：
 
 - `prompt`：模型输入的定理陈述和上下文。
 - `completion`：监督训练使用的证明体。
-- `lean_statement`、`imports`、`context_lines`：可供校验和评估复用的 Lean 信息。
-- `proof`：规范化证明体，不允许包含 `sorry`、`admit` 等占位证明。
 
-SFT 训练时的 validation 用于计算 `eval_loss`，因此同样必须包含 `completion/proof`。SFT 的生成式评估数据由 benchmark/evaluation 流程生成，只包含提示、定理与环境字段，不包含目标 proof。不要把这两种“评估”数据混用。
+`lean_statement`、规范化 `proof`、imports/context、来源、去重哈希和 Pantograph
+验证事实只保存在同序的 `sft_manifest` sidecar。需要加权采样的专家迭代训练
+允许第三个 trainer-only 字段 `sample_weight`。`text = prompt + completion`、
+重复的 `proof` 字段以及逐行 provenance 都禁止写入新训练文件。
+
+SFT 训练时的 validation 用于计算 `eval_loss`，因此同样采用极简
+`prompt`/`completion` 投影并配套独立 manifest。SFT 的生成式评估数据由
+benchmark/evaluation 流程生成，只包含提示、定理与环境字段，不包含目标 proof。
+不要把这两种“评估”数据混用。
 
 GRPO 训练、GRPO validation 和 benchmark 记录都是无目标证明的提示记录：
 
@@ -110,7 +132,7 @@ GRPO 训练、GRPO validation 和 benchmark 记录都是无目标证明的提示
 - `lean_statement`：Pantograph 编译时使用的原始定理陈述。
 - `id`：奖励日志、验证结果和断点续跑使用的稳定标识。
 - `imports`、`context_lines`：可选的 Lean 前置环境。
-- GRPO 记录额外包含 `reference_proof_length_tokens`、字符数、行数和 hash；这些是不可直接还原原 proof 的奖励元数据，不包含 `proof`、`completion` 或 `text`。
+- GRPO 记录不包含、也不会读取 `proof`、`reference_proof`、`completion`、`text` 或任何由参考证明派生的长度/hash 字段。奖励只依据模型本轮生成的证明及 Pantograph 结果计算。
 
 GRPO reward 记录生成证明的长度与外层结构。Pantograph 编译后会保存错误类型、首个错误、错误/警告数量；编译成功时获得 compile reward，格式有效时获得 format reward，且生成证明短于参考证明时按缩短比例获得 brevity reward。简短性奖励只对编译成功的证明生效，避免用空答案或无效短答案刷分。
 
@@ -126,9 +148,9 @@ GRPO reward 记录生成证明的长度与外层结构。Pantograph 编译后会
 如果 SFT 与 GRPO 都从完全相同的数据源和 split 取全量记录，那么排除 SFT train 与 validation 后不会剩下 GRPO 数据；此时应先为 GRPO 选择独立数据源或独立 split，而不是强行启用排除。例如：
 
 ```bash
-python -m lean_prover.lean_training.prepare_datasets \
-  --train_dataset_name path/to/disjoint_grpo_source.jsonl \
-  --train_data_kind lean-workbook \
+python -m lean_prover.lean_training.data.cli \
+  --train_dataset_name lean_prover/Dataset/verified_data/kimina_verified_success.jsonl \
+  --train_data_kind kimina-grpo \
   --grpo_train_output outputs/data/lean_workbook_grpo.jsonl \
   --grpo_validation_output outputs/data/lean_workbook_grpo_validation.jsonl \
   --grpo_exclude_sft_file outputs/data/lean_workbook_train.jsonl \
@@ -139,16 +161,23 @@ python -m lean_prover.lean_training.prepare_datasets \
 
 以下命令保留原有顶层入口，现由兼容层转发到新包结构。
 
-准备训练和基准数据：
+分别准备 SFT、GRPO 和基准数据（示例拆开执行，避免混用数据角色）：
 
 ```bash
-python -m lean_prover.lean_training.prepare_datasets \
+python -m lean_prover.lean_training.data.cli \
   --train_dataset_name InternLM/Lean-Workbook \
   --train_output outputs/data/lean_workbook_train.jsonl \
   --validation_output outputs/data/lean_workbook_validation.jsonl \
-  --grpo_train_output outputs/data/lean_workbook_grpo.jsonl \
-  --grpo_validation_output outputs/data/lean_workbook_grpo_validation.jsonl \
-  --validation_ratio 0.02 \
+  --validation_ratio 0.02
+
+python -m lean_prover.lean_training.data.cli \
+  --train_dataset_name lean_prover/Dataset/verified_data/kimina_verified_success.jsonl \
+  --train_data_kind kimina-grpo \
+  --grpo_train_output outputs/data/kimina_grpo.jsonl \
+  --grpo_validation_output outputs/data/kimina_grpo_validation.jsonl \
+  --validation_ratio 0.02
+
+python -m lean_prover.lean_training.data.cli \
   --benchmark_dataset_name path/to/minif2f/test.jsonl \
   --benchmark_output outputs/data/minif2f_benchmark.jsonl
 ```
@@ -157,7 +186,7 @@ python -m lean_prover.lean_training.prepare_datasets \
 
 ```bash
 python -m lean_prover.lean_training.sft \
-  --model_name_or_path Qwen/Qwen2.5-0.5B-Instruct \
+  --model_name_or_path Qwen/Qwen2.5-1.5B-Instruct \
   --train_file outputs/data/lean_workbook_train.jsonl \
   --validation_file outputs/data/lean_workbook_validation.jsonl \
   --output_dir outputs/runs/qwen2_5_0_5b_lean_sft
@@ -167,8 +196,8 @@ python -m lean_prover.lean_training.sft \
 
 ```bash
 python -m lean_prover.lean_training.grpo \
-  --model_name_or_path Qwen/Qwen2.5-0.5B-Instruct \
-  --train_file outputs/data/lean_workbook_grpo.jsonl \
+  --model_name_or_path Qwen/Qwen2.5-1.5B-Instruct \
+  --train_file outputs/data/kimina_grpo.jsonl \
   --output_dir outputs/runs/qwen2_5_0_5b_lean_grpo \
   --lean_project_path lean_project \
   --pantograph_imports Mathlib \
@@ -189,11 +218,11 @@ python -m lean_prover.lean_training.check_data_leakage \
 统一评估基座模型或 LoRA adapter：
 
 ```bash
-python -m lean_prover.lean_training.benchmark_pipeline \
+python -m lean_prover.lean_training.evaluation.benchmark \
   --model_name_or_path Qwen/Qwen2.5-0.5B-Instruct \
   --adapter_path outputs/runs/qwen2_5_0_5b_lean_sft \
-  --benchmark_file outputs/data/minif2f_benchmark.jsonl \
-  --output_dir outputs/benchmarks/qwen2_5_0_5b_minif2f \
+  --benchmark_file lean_prover/Dataset/final_data/minif2f_data.jsonl \
+  --output_dir lean_prover/Dataset/experiment_result \
   --generation_backend vllm \
   --pass_k 32 \
   --lean_project_path lean_project \
@@ -289,11 +318,11 @@ python run_expert_iteration.py --config configs/expert_iteration.example.yaml --
 
 ```bash
 python run_expert_iteration.py --config configs/expert_iteration.smoke.example.yaml
-python -m lean_prover.lean_training.benchmark_pipeline \
+python -m lean_prover.lean_training.evaluation.benchmark \
   --model_name_or_path path/to/model \
   --adapter_path path/to/adapter \
-  --benchmark_file data/processed/minif2f_benchmark.jsonl \
-  --output_dir outputs/smoke/minif2f \
+  --benchmark_file lean_prover/Dataset/final_data/minif2f_data.jsonl \
+  --output_dir lean_prover/Dataset/experiment_result \
   --num_benchmark_samples 5 --pass_k 2 --num_workers 2
 ```
 

@@ -12,6 +12,8 @@ class SFTTrainConfig:
     output_dir: str
     adapter_path: str | None = None
     validation_file: str | None = None
+    train_manifest_file: str | None = None
+    validation_manifest_file: str | None = None
     prompt_field: str = "prompt"
     completion_field: str = "completion"
     sample_weight_field: str | None = None

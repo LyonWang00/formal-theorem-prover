@@ -9,6 +9,13 @@ from pathlib import Path
 from lean_prover.lean_training.data.preparation import *
 
 
+def _default_manifest_path(training_output: str) -> Path:
+    """Return the conventional rich-manifest sidecar for a minimal JSONL."""
+
+    path = Path(training_output)
+    return path.with_name(f"{path.stem}.manifest{path.suffix}")
+
+
 def parse_args() -> argparse.Namespace:
     """Parse dataset, filtering, validation, and output CLI options.
 
@@ -19,6 +26,24 @@ def parse_args() -> argparse.Namespace:
         description="Prepare Lean-Workbook training data and miniF2F benchmark data."
     )
     parser.add_argument("--train_dataset_name", default=None)
+    parser.add_argument(
+        "--sft_source",
+        action="append",
+        default=[],
+        metavar="KIND=PATH",
+        help=(
+            "Verified SFT source to merge; repeat to perform cross-file "
+            "deduplication into one sft_manifest."
+        ),
+    )
+    parser.add_argument(
+        "--sft_manifest_output",
+        default="lean_prover/Dataset/manifest/sft_manifest.jsonl",
+    )
+    parser.add_argument(
+        "--sft_data_output",
+        default="lean_prover/Dataset/final_data/sft_data.jsonl",
+    )
     parser.add_argument("--train_dataset_config", default=None)
     parser.add_argument(
         "--train_data_kind",
@@ -29,9 +54,30 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset_revision", default=None)
     parser.add_argument("--train_sample_size", type=int, default=None)
     parser.add_argument("--train_output", default=None)
+    parser.add_argument(
+        "--train_manifest_output",
+        default=None,
+        help=(
+            "Rich verified SFT manifest sidecar. Defaults to "
+            "<train_output stem>.manifest.jsonl."
+        ),
+    )
     parser.add_argument("--train_rejected_output", default=None)
     parser.add_argument("--validation_output", default=None)
+    parser.add_argument(
+        "--validation_manifest_output",
+        default=None,
+        help=(
+            "Rich verified validation manifest sidecar. Defaults to "
+            "<validation_output stem>.manifest.jsonl."
+        ),
+    )
     parser.add_argument("--grpo_train_output", default=None)
+    parser.add_argument(
+        "--grpo_manifest_output",
+        default=None,
+        help="Optional rich statement-only grpo_manifest output.",
+    )
     parser.add_argument("--grpo_validation_output", default=None)
     parser.add_argument(
         "--grpo_exclude_sft_file",
@@ -98,23 +144,89 @@ def main() -> None:
     from lean_prover.lean_training.data.training import (
         build_generation_prompt,
         build_grpo_evaluation_record,
+        build_grpo_general_data,
         build_grpo_training_record,
         build_sft_evaluation_record,
+        build_sft_general_data,
         build_sft_training_record,
         exclude_statement_overlaps,
         filter_grpo_records_by_prompt_length,
         filter_sft_records_by_token_length,
         load_statement_hashes,
+        deduplicate_training_records,
     )
 
     args = parse_args()
     if args.max_length is not None:
         print("WARNING: --max_length is deprecated; use --max_seq_length")
         args.max_seq_length = args.max_length
-    if not args.train_output and not args.benchmark_output and not args.grpo_train_output:
+    if (
+        not args.sft_source
+        and not args.train_output
+        and not args.benchmark_output
+        and not args.grpo_train_output
+    ):
         raise ValueError(
             "provide --train_output, --grpo_train_output, and/or --benchmark_output"
         )
+
+    if args.sft_source:
+        rich_rows: list[dict[str, object]] = []
+        source_counts: dict[str, int] = {}
+        for specification in args.sft_source:
+            if "=" not in specification:
+                raise ValueError(
+                    f"invalid --sft_source {specification!r}; expected KIND=PATH"
+                )
+            kind, raw_path = specification.split("=", 1)
+            source_path = Path(raw_path).expanduser()
+            source_records = normalize_records(
+                load_local_records(source_path),
+                dataset_kind=normalize_dataset_name(kind),
+                source_name=source_path.name,
+                require_proof=True,
+            )
+            source_counts[source_path.name] = len(source_records)
+            rich_rows.extend(
+                build_sft_general_data(record) for record in source_records
+            )
+        rich_rows, duplicates = deduplicate_training_records(
+            rich_rows,
+            workflow="sft",
+        )
+        from lean_prover.Data import SFTData, SFTGeneralData
+
+        validated_manifest = [
+            SFTGeneralData.model_validate(row).model_dump(mode="json")
+            for row in rich_rows
+        ]
+        projected = [
+            SFTData.model_validate(
+                {
+                    "prompt": build_generation_prompt(row),
+                    "completion": str(row["proof"]),
+                }
+            ).model_dump(mode="json")
+            for row in validated_manifest
+        ]
+        write_jsonl(validated_manifest, Path(args.sft_manifest_output))
+        write_jsonl(projected, Path(args.sft_data_output))
+        print(
+            "UNIFIED_SFT_MANIFEST_STATS "
+            + json.dumps(
+                {
+                    "sources": source_counts,
+                    "before_cross_file_dedup": len(rich_rows) + len(duplicates),
+                    "duplicates_removed": len(duplicates),
+                    "final_records": len(validated_manifest),
+                    "manifest_output": args.sft_manifest_output,
+                    "sft_data_output": args.sft_data_output,
+                },
+                ensure_ascii=False,
+            )
+        )
+        if not args.train_output and not args.grpo_train_output and not args.benchmark_output:
+            return
 
     if args.train_output:
         if not args.train_dataset_name:
@@ -209,15 +321,42 @@ def main() -> None:
             (build_sft_training_record(record) for record in train_records),
             Path(args.train_output),
         )
+        train_manifest_output = Path(
+            args.train_manifest_output
+            or _default_manifest_path(args.train_output)
+        )
+        write_jsonl(
+            (build_sft_general_data(record) for record in train_records),
+            train_manifest_output,
+        )
         print(f"wrote {len(train_records)} training records to {args.train_output}")
+        print(
+            f"wrote {len(train_records)} verified SFT manifest records "
+            f"to {train_manifest_output}"
+        )
         if args.validation_output:
             write_jsonl(
                 (build_sft_training_record(record) for record in validation_records),
                 Path(args.validation_output),
             )
+            validation_manifest_output = Path(
+                args.validation_manifest_output
+                or _default_manifest_path(args.validation_output)
+            )
+            write_jsonl(
+                (
+                    build_sft_general_data(record)
+                    for record in validation_records
+                ),
+                validation_manifest_output,
+            )
             print(
                 f"wrote {len(validation_records)} in-training validation records "
                 f"to {args.validation_output}"
+            )
+            print(
+                f"wrote {len(validation_records)} verified validation manifest "
+                f"records to {validation_manifest_output}"
             )
 
     if args.grpo_train_output:
@@ -226,9 +365,10 @@ def main() -> None:
         train_kind = normalize_dataset_name(
             args.train_data_kind or args.train_dataset_name
         )
-        if train_kind != "lean-workbook":
+        if train_kind not in {"numinamath-grpo", "kimina-grpo"}:
             raise ValueError(
-                "GRPO preparation currently supports only Lean-Workbook; "
+                "GRPO preparation supports only verified statement-only "
+                "NuminaMath or Kimina sources; "
                 f"got {args.train_dataset_name!r} ({train_kind})"
             )
         grpo_dataset = load_dataset_source(
@@ -242,7 +382,7 @@ def main() -> None:
             grpo_dataset,
             dataset_kind=train_kind,
             source_name=args.train_dataset_name,
-            require_proof=True,
+            require_proof=False,
             limit=args.train_sample_size,
         )
         if args.grpo_exclude_sft_file:
@@ -269,14 +409,33 @@ def main() -> None:
                     "disjoint GRPO source/split or omit --grpo_exclude_sft_file"
                 )
         if args.verify_with_pantograph:
+            pantograph_imports = tuple(
+                item.strip()
+                for item in args.pantograph_imports.split(",")
+                if item.strip()
+            )
+            before_count = len(grpo_records)
+            grpo_records = validate_records_with_pantograph(
+                grpo_records,
+                lean_project_path=args.lean_project_path,
+                imports=pantograph_imports,
+                timeout=args.lean_timeout,
+                require_proof=False,
+                num_workers=args.verification_workers,
+                rejected_output_path=(
+                    Path(args.train_rejected_output)
+                    if args.train_rejected_output
+                    else None
+                ),
+            )
             print(
                 "PANTOGRAPH_VALIDATION "
                 + json.dumps(
                     {
                         "label": "grpo_train",
                         "data_kind": train_kind,
-                        "skipped": True,
-                        "reason": "Lean-Workbook uses specialized normalization for GRPO preparation",
+                        "before": before_count,
+                        "after": len(grpo_records),
                     },
                     ensure_ascii=False,
                 )
@@ -306,6 +465,11 @@ def main() -> None:
             (build_grpo_training_record(record) for record in grpo_records),
             Path(args.grpo_train_output),
         )
+        if args.grpo_manifest_output:
+            write_jsonl(
+                (build_grpo_general_data(record) for record in grpo_records),
+                Path(args.grpo_manifest_output),
+            )
         print(f"wrote {len(grpo_records)} GRPO training records to {args.grpo_train_output}")
         if args.grpo_validation_output:
             write_jsonl(

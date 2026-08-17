@@ -967,23 +967,6 @@ def verify_external_dataset(
         "runtime": runtime,
     }
     _write_json(report_path, report)
-    manifest_path = dataset_root / "dataset_manifest.json"
-    manifest = (
-        json.loads(manifest_path.read_text(encoding="utf-8"))
-        if manifest_path.exists()
-        else {"schema_version": HASH_SCHEMA_VERSION}
-    )
-    manifest.setdefault("external_datasets", {})[spec.key] = {
-        "source": spec.source,
-        "revision": spec.revision,
-        "verification_scope": spec.verification_scope,
-        "raw": report["raw"],
-        "success": report["outputs"]["success"],
-        "fail": report["outputs"]["fail"],
-        "complete": complete,
-        "report_path": str(report_path.resolve()),
-    }
-    _write_json(manifest_path, manifest)
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return report
 

@@ -26,7 +26,7 @@ DEFAULT_DATASET_IDS = {
     "minif2f": "cat-searcher/minif2f-lean4",
 }
 
-DEFAULT_TOKENIZER = "Qwen/Qwen2.5-0.5B-Instruct"
+DEFAULT_TOKENIZER = "Qwen/Qwen2.5-1.5B-Instruct"
 DEFAULT_MAX_LENGTH = 1024
 FORBIDDEN_PROOF_RE = re.compile(r"\b(?:sorry|admit)\b")
 ASSEMBLER_VERSION = "2"
@@ -316,6 +316,16 @@ def normalize_dataset_name(dataset_name: str) -> str:
         return "minif2f"
     if "lean-workbook" in lowered:
         return "lean-workbook"
+    if "leandojo" in lowered:
+        return "leandojo-sft"
+    if "numinamath" in lowered and "grpo" in lowered:
+        return "numinamath-grpo"
+    if lowered in {"numinamath-sft", "numinamath_sft"}:
+        return "numinamath-sft"
+    if "numinamath" in lowered:
+        return "numinamath-sft"
+    if "kimina" in lowered:
+        return "kimina-grpo"
     if "minif2f" in lowered or "mini-f2f" in lowered:
         return "minif2f"
     return "generic"
@@ -340,10 +350,16 @@ def normalize_example(
         A uniform Lean theorem/proof example.
     """
 
-    if dataset_kind == "lean-workbook":
-        return normalize_lean_workbook_example(example, index, source_name=source_name)
-    if dataset_kind == "minif2f":
-        return normalize_minif2f_example(example, index, source_name=source_name)
+    from .adapters import normalize_with_adapter
+
+    adapted = normalize_with_adapter(
+        dataset_kind,
+        example,
+        index,
+        source_name=source_name,
+    )
+    if adapted is not None:
+        return adapted
     return normalize_generic_lean_example(
         example,
         dataset_kind,
@@ -711,7 +727,14 @@ def _first_token(text: str) -> str:
 def strip_lean_proof_body(lean_code: str) -> str:
     """Return only the theorem/lemma statement, removing any proof body."""
 
-    statement, _ = split_lean_statement_and_proof(lean_code)
+    try:
+        statement, _ = split_lean_statement_and_proof(lean_code)
+    except ValueError as error:
+        if "ambiguous Lean declaration assignment" not in str(error):
+            raise
+        # Several declaration-level assignments can be part of a proof-free
+        # proposition, for example consecutive ``let x := ...`` binders.
+        statement = _strip_markdown_fence(lean_code).strip()
     return statement.strip()
 
 
@@ -887,7 +910,13 @@ def lean_code_tokens(text: str) -> Iterable[str]:
 
 def has_supported_declaration_prefix(statement: str) -> bool:
     stripped = statement.lstrip()
-    return stripped.startswith("theorem ") or stripped.startswith("lemma ")
+    prefix = re.compile(
+        r"^(?:@\[[^\]]*\]\s*)*"
+        r"(?:(?:private|protected|nonrec)\s+)*"
+        r"(?:theorem|lemma|example)(?:\s+|\()",
+        re.S,
+    )
+    return bool(prefix.match(stripped))
 
 
 def equivalent_statement(left: str, right: str) -> bool:
@@ -901,13 +930,55 @@ def equivalent_statement(left: str, right: str) -> bool:
 
 
 def statement_hash(statement: str) -> str:
-    normalized = _normalize_statement_for_compare(strip_lean_proof_body(statement))
+    """Hash an already proof-free statement without truncating ``let`` types."""
+
+    # Normalized records store the proof separately.  Re-parsing every ``:=``
+    # here would mistake proposition-level ``let`` binders for a declaration
+    # proof and could make distinct theorem statements collide.
+    proof_free = re.sub(r"\s*:=\s*$", "", statement.strip())
+    normalized = _normalize_statement_for_compare(proof_free)
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
 def proof_hash(proof: str) -> str:
     normalized = re.sub(r"\s+", " ", normalize_proof_rhs(proof).strip())
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def normalized_record_dedup_key(
+    record: NormalizedExample,
+    *,
+    require_proof: bool,
+) -> tuple[str, ...]:
+    """Return the role-specific identity used for source and manifest deduplication.
+
+    SFT keeps distinct proofs for the same statement, while statement-only GRPO
+    keeps one row per normalized Lean statement.
+    """
+
+    statement_key = statement_hash(record.lean_statement)
+    if require_proof:
+        return (statement_key, proof_hash(record.proof))
+    return (statement_key,)
+
+
+def _disambiguate_record_id(
+    record: NormalizedExample,
+    *,
+    content_key: tuple[str, ...],
+    seen_ids: set[str],
+) -> NormalizedExample:
+    """Keep nonduplicate content when a source reuses a record identifier."""
+
+    if record.id not in seen_ids:
+        return record
+    digest = hashlib.sha256("\0".join(content_key).encode("utf-8")).hexdigest()[:12]
+    candidate = f"{record.id}::{digest}"
+    suffix = 2
+    while candidate in seen_ids:
+        candidate = f"{record.id}::{digest}-{suffix}"
+        suffix += 1
+    return replace(record, id=candidate)
 
 
 def normalize_records(
@@ -933,15 +1004,15 @@ def normalize_records(
     Side Effects:
         Prints aggregate preparation and rejection statistics.
     """
-    if dataset_kind == "minif2f" and require_proof:
+    if dataset_kind in {"minif2f", "numinamath-grpo", "kimina-grpo"} and require_proof:
         raise ValueError(
-            "miniF2F normalization currently produces benchmark prompts only; "
-            "do not use dataset_kind=minif2f with require_proof=True"
+            f"{dataset_kind} is proof-free and cannot be normalized with "
+            "require_proof=True"
         )
     records: list[NormalizedExample] = []
     stats = PreparationStats()
     seen_ids: set[str] = set()
-    seen_statement_hashes: set[str] = set()
+    seen_content_keys: set[tuple[str, ...]] = set()
     for index, example in enumerate(dataset):
         stats.total += 1
         if not _has_valid_imports_shape(example):
@@ -957,15 +1028,22 @@ def normalize_records(
         except ValueError as error:
             _record_normalization_error(stats, error)
             continue
-        if normalized.id in seen_ids:
-            stats.duplicate_id += 1
-            continue
-        seen_ids.add(normalized.id)
-        normalized_hash = statement_hash(normalized.lean_statement)
-        if normalized_hash in seen_statement_hashes:
+        content_key = normalized_record_dedup_key(
+            normalized,
+            require_proof=require_proof,
+        )
+        if content_key in seen_content_keys:
             stats.duplicate_statement += 1
             continue
-        seen_statement_hashes.add(normalized_hash)
+        seen_content_keys.add(content_key)
+        if normalized.id in seen_ids:
+            stats.duplicate_id += 1
+            normalized = _disambiguate_record_id(
+                normalized,
+                content_key=content_key,
+                seen_ids=seen_ids,
+            )
+        seen_ids.add(normalized.id)
         if not normalized.lean_statement.strip():
             stats.missing_statement += 1
             continue
@@ -1065,7 +1143,10 @@ def validate_records_with_pantograph(
     rejected_rows: list[dict[str, Any]] = []
     tasks: list[VerificationTask] = []
     for record_index, record in enumerate(records_list):
-        if _record_contains_forbidden_token(record):
+        if _record_contains_forbidden_token(
+            record,
+            require_proof=require_proof,
+        ):
             pre_rejected += 1
             rejected_rows.append(
                 {
@@ -1172,8 +1253,14 @@ def should_validate_dataset_with_pantograph(dataset_kind: str) -> bool:
     return bool(dataset_kind)
 
 
-def _record_contains_forbidden_token(record: NormalizedExample) -> bool:
-    fields = [record.lean_statement, record.proof, *record.context_lines]
+def _record_contains_forbidden_token(
+    record: NormalizedExample,
+    *,
+    require_proof: bool,
+) -> bool:
+    fields = [record.lean_statement]
+    if require_proof:
+        fields.extend((record.proof, *record.context_lines))
     return any(contains_forbidden_proof_token(field) for field in fields if field)
 
 

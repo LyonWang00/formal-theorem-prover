@@ -13,6 +13,7 @@ from .schemas import (
     EIData,
     EvaluationData,
     GRPOData,
+    GRPOGeneralData,
     NormalizationFamily,
     PlannerDataStatus,
     ProverDataStatus,
@@ -21,6 +22,7 @@ from .schemas import (
     ProverRootResult,
     RawInferenceData,
     SFTData,
+    SFTGeneralData,
 )
 
 
@@ -38,6 +40,7 @@ __all__ = [
     "EIData",
     "EvaluationData",
     "GRPOData",
+    "GRPOGeneralData",
     "LeanErrorClassification",
     "LeanFailureDetail",
     "LeanVerificationStatus",
@@ -49,5 +52,6 @@ __all__ = [
     "ProverRootResult",
     "RawInferenceData",
     "SFTData",
+    "SFTGeneralData",
     "classify_lean_diagnostics",
 ]

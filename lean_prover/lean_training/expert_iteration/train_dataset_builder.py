@@ -8,9 +8,14 @@ from typing import Any
 
 from lean_prover.lean_training.data.preparation import (
     NormalizedExample,
+    proof_hash as calculate_proof_hash,
     statement_hash as calculate_statement_hash,
 )
-from lean_prover.lean_training.data.training import build_sft_training_record
+from lean_prover.lean_training.data.training import (
+    build_generation_prompt,
+    build_sft_general_data,
+    normalize_sft_completion,
+)
 
 from .config import CategorySamplingConfig, TrainMixConfig
 from .schemas import ProofBankRecord
@@ -69,8 +74,9 @@ def build_iteration_train_dataset(
             proof=proof.proof,
             imports=tuple(statement_data.get("imports") or ()),
             context_lines=tuple(statement_data.get("context_lines") or ()),
+            pantograph_verified=True,
         )
-        row = build_sft_training_record(example)
+        row = build_sft_general_data(example)
         row.update(
             {
                 "expert_source": source_group,
@@ -149,21 +155,21 @@ def build_iteration_train_dataset(
             completion_tokens = _completion_tokens(row)
             category = str(row.get("category") or "unknown")
             sample_weight = max(adjusted_weight, 1e-12)
-            output_row = _canonical_training_row(row, sample_weight=sample_weight)
+            manifest_row = _canonical_manifest_row(
+                row,
+                source_group=name,
+                category=category,
+                completion_tokens=completion_tokens,
+                sample_weight=sample_weight,
+            )
+            output_row = _canonical_training_row(
+                manifest_row,
+                sample_weight=sample_weight,
+            )
             all_rows.append(output_row)
             category_examples[category] += 1
             category_tokens[category] += completion_tokens
-            manifest.append(
-                {
-                    "id": row.get("id"),
-                    "statement_hash": row.get("statement_hash"),
-                    "source_group": name,
-                    "completion_tokens": completion_tokens,
-                    "sample_weight": sample_weight,
-                    "proof_bank_id": row.get("proof_bank_id"),
-                    "category": category,
-                }
-            )
+            manifest.append(manifest_row)
     stats = {
         "iteration": iteration,
         "examples_by_source": dict(
@@ -188,7 +194,7 @@ def build_iteration_train_dataset(
         "sampling_weight_by_category": {
             category: sum(
                 float(row["sample_weight"])
-                for row in all_rows
+                for row in manifest
                 if str(row.get("category") or "unknown") == category
             )
             for category in sorted(category_examples)
@@ -213,40 +219,71 @@ def _canonical_training_row(
     *,
     sample_weight: float,
 ) -> dict[str, Any]:
-    """Project anchor and expert rows onto one stable Arrow-compatible schema."""
+    """Project one rich manifest row onto the trainer's minimal schema."""
 
-    prompt = str(row.get("prompt") or "")
+    prompt = build_generation_prompt(row)
     completion = str(row.get("completion") or row.get("proof") or "")
     return {
-        "id": str(row.get("id") or row.get("record_id") or ""),
-        "record_id": str(row.get("record_id") or row.get("id") or ""),
         "prompt": prompt,
         "completion": completion,
-        "proof": completion,
-        "text": str(row.get("text") or prompt + completion),
-        "lean_statement": str(row.get("lean_statement") or row.get("statement") or ""),
-        "statement_hash": str(row.get("statement_hash") or ""),
-        "imports": [str(value) for value in row.get("imports") or []],
-        "data_role": "train",
-        "data_state": str(row.get("data_state") or "verified"),
-        "statement_verified": bool(row.get("statement_verified")),
-        "proof_verified": bool(row.get("proof_verified")),
-        "pantograph_verified": bool(row.get("pantograph_verified")),
-        "environment_hash": str(row.get("environment_hash") or ""),
-        "assembler_version": str(row.get("assembler_version") or ""),
-        "normalization_version": str(row.get("normalization_version") or ""),
-        "assembled_source_hash": str(row.get("assembled_source_hash") or ""),
-        "attestation_id": str(row.get("attestation_id") or ""),
-        "verification_status": str(row.get("verification_status") or "verified"),
-        "expert_source": str(row.get("expert_source") or "anchor"),
-        "origin_data_role": str(row.get("origin_data_role") or "train"),
-        "proof_bank_id": str(row.get("proof_bank_id") or ""),
-        "iteration_found": int(row.get("iteration_found", -1)),
-        "category": str(row.get("category") or "unknown"),
-        "reference_proof_length_tokens": int(
-            row.get("reference_proof_length_tokens") or _completion_tokens(row)
-        ),
         "sample_weight": float(sample_weight),
+    }
+
+
+def _canonical_manifest_row(
+    row: dict[str, Any],
+    *,
+    source_group: str,
+    category: str,
+    completion_tokens: int,
+    sample_weight: float,
+) -> dict[str, Any]:
+    """Normalize legacy/Proof-Bank metadata into an auditable SFT sidecar row."""
+
+    statement = str(row.get("lean_statement") or row.get("statement") or "").strip()
+    proof = normalize_sft_completion(
+        str(row.get("completion") or row.get("proof") or "").strip()
+    )
+    if not statement or not proof:
+        raise ValueError("expert-iteration SFT row lacks statement or proof")
+    if row.get("pantograph_verified") is not True:
+        raise ValueError("expert-iteration SFT row is not Pantograph verified")
+    metadata = dict(row.get("metadata") or {})
+    informal_statement = str(row.get("informal_statement") or "").strip()
+    if informal_statement:
+        metadata["informal_statement"] = informal_statement
+    metadata.update(
+        {
+            "source_group": source_group,
+            "category": category,
+            "completion_tokens": completion_tokens,
+            "sample_weight": sample_weight,
+            "proof_bank_id": str(row.get("proof_bank_id") or ""),
+            "iteration_found": int(row.get("iteration_found", -1)),
+        }
+    )
+    return {
+        "schema_version": "sft_manifest",
+        "data_stage": "sft",
+        "split": "train",
+        "record_id": str(row.get("record_id") or row.get("id") or ""),
+        "lean_statement": statement,
+        "proof": proof,
+        "imports": [str(value) for value in row.get("imports") or []],
+        "context_lines": [str(value) for value in row.get("context_lines") or []],
+        "unknown_preamble_lines": [
+            str(value) for value in row.get("unknown_preamble_lines") or []
+        ],
+        "source": str(row.get("source") or row.get("source_name") or source_group),
+        "statement_hash": calculate_statement_hash(statement),
+        "proof_hash": calculate_proof_hash(proof),
+        "pantograph_verified": bool(row.get("pantograph_verified")),
+        "verification_scope": "full_proof",
+        "source_group": source_group,
+        "category": category,
+        "completion_tokens": completion_tokens,
+        "sample_weight": sample_weight,
+        "metadata": metadata,
     }
 
 

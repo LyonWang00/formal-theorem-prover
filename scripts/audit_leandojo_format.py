@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from lean_prover.lean_training.data.leandojo import iter_json_array
+from lean_prover.lean_training.data.adapters.leandojo import iter_json_array
 from lean_prover.lean_training.data.preparation import lean_code_tokens
 from lean_prover.lean_training.expert_iteration.utils import file_sha256
 

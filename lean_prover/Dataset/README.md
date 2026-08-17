@@ -102,6 +102,28 @@ Planner -> Blueprint -> Prover pilot in
 - `verified_data/kimina_verified_success.jsonl`;
 - `verified_data/kimina_verified_fail.jsonl`.
 
+Statement-only GRPO and benchmark artifacts are:
+
+- `verified_data/numinamath_GRPO.jsonl`: canonical NuminaMath GRPO pool,
+  including deduplicated candidates previously compiled in
+  `numinamath_verified_GRPO.jsonl`;
+- `verified_data/kimina_verified_success.jsonl`: audited Kimina source pool;
+  its upstream parquet repeats statement IDs, so the Kimina adapter performs
+  normalized-statement deduplication when materializing GRPO training data;
+- `verified_data/miniF2F_verified.jsonl`: the protected 488-row benchmark
+  bundle, preserving 244 `valid` and 244 `test` rows.
+
+Global `dataset_manifest.json` and `dataset_audit.json` were retired because
+they mixed independently updated source snapshots. Each verifier now writes a
+source-scoped, content-hashed report beside its verified artifacts.
+
+Rich cross-source SFT/GRPO materializations belong under `manifest/`. Minimal
+model-facing SFT/GRPO projections and the protected miniF2F benchmark belong
+under `final_data/`; benchmark and rollout results belong under
+`experiment_result/`. See [`manifest/README.md`](manifest/README.md) and
+[`final_data/README.md`](final_data/README.md) for the contracts and
+role-specific deduplication rules.
+
 Run a schema gate or a restartable verification job:
 
 ```bash

@@ -65,7 +65,7 @@ fi
 echo
 echo "==== prepare benchmark data ===="
 echo "prepare_benchmark_start=$(date -Is)"
-"$PY" -m lean_prover.lean_training.prepare_datasets \
+"$PY" -m lean_prover.lean_training.data.cli \
   --benchmark_dataset_name "$LOCAL_MINIF2F" \
   --benchmark_sample_size "$NUM_BENCHMARK_SAMPLES" \
   --benchmark_output "$BENCHMARK_FILE" \
@@ -75,7 +75,7 @@ echo "prepare_benchmark_end=$(date -Is)"
 echo
 echo "==== run adapter benchmark ===="
 echo "benchmark_start=$(date -Is)"
-/usr/bin/time -f "benchmark_elapsed_seconds=%e" "$PY" -m lean_prover.lean_training.benchmark_pipeline \
+/usr/bin/time -f "benchmark_elapsed_seconds=%e" "$PY" -m lean_prover.lean_training.evaluation.benchmark \
   --model_name_or_path "$MODEL_NAME" \
   --adapter_path "$ADAPTER_PATH" \
   --benchmark_file "$BENCHMARK_FILE" \

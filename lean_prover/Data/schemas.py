@@ -53,6 +53,10 @@ class DatasetSplit(StrEnum):
 
 class NormalizationFamily(StrEnum):
     LEAN_WORKBOOK = "lean_workbook"
+    LEANDOJO_SFT = "leandojo_sft"
+    NUMINAMATH_SFT = "numinamath_sft"
+    NUMINAMATH_GRPO = "numinamath_grpo"
+    KIMINA_GRPO = "kimina_grpo"
     MINIF2F = "minif2f"
     GENERIC = "generic"
 
@@ -175,16 +179,31 @@ class ProverProblemResult(StrictDataModel):
         return self
 
 
-class SFTData(StrictDataModel):
-    schema_version: Literal["sft_data_v1"] = "sft_data_v1"
+class SFTGeneralData(StrictDataModel):
+    """Unified, verified SFT manifest row before trainer projection."""
+
+    schema_version: Literal["sft_manifest"] = "sft_manifest"
     data_stage: Literal[DatasetStage.SFT] = DatasetStage.SFT
     split: DatasetSplit = DatasetSplit.TRAIN
     record_id: str = Field(min_length=1)
     lean_statement: str = Field(min_length=1)
-    verified_proof: str = Field(min_length=1)
+    proof: str = Field(min_length=1, pattern=r"^by(?:\s|$)")
+    imports: list[str] = Field(default_factory=list)
+    context_lines: list[str] = Field(default_factory=list)
+    unknown_preamble_lines: list[str] = Field(default_factory=list)
     source: str = Field(min_length=1)
-    normalization_family: NormalizationFamily = NormalizationFamily.GENERIC
+    statement_hash: str = Field(min_length=64, max_length=64)
+    proof_hash: str = Field(min_length=64, max_length=64)
+    pantograph_verified: Literal[True] = True
+    verification_scope: Literal["full_proof"] = "full_proof"
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class SFTData(StrictDataModel):
+    """Strict trainer-facing SFT row; audit facts live in ``sft_manifest``."""
+
+    prompt: str = Field(min_length=1)
+    completion: str = Field(min_length=1, pattern=r"^by(?:\s|$)")
 
 
 class EIData(StrictDataModel):
@@ -216,6 +235,24 @@ class GRPOData(StrictDataModel):
     lean_statement: str = Field(min_length=1)
     source: str = Field(min_length=1)
     pantograph_verified: Literal["success"] = "success"
+    verification_scope: Literal["statement_only"] = "statement_only"
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class GRPOGeneralData(StrictDataModel):
+    """Model-independent statement-only GRPO row with optional Lean context."""
+
+    schema_version: Literal["grpo_manifest"] = "grpo_manifest"
+    data_stage: Literal[DatasetStage.GRPO] = DatasetStage.GRPO
+    split: DatasetSplit = DatasetSplit.TRAIN
+    record_id: str = Field(min_length=1)
+    lean_statement: str = Field(min_length=1)
+    imports: list[str] = Field(default_factory=list)
+    context_lines: list[str] = Field(default_factory=list)
+    unknown_preamble_lines: list[str] = Field(default_factory=list)
+    source: str = Field(min_length=1)
+    statement_hash: str = Field(min_length=64, max_length=64)
+    pantograph_verified: Literal[True] = True
     verification_scope: Literal["statement_only"] = "statement_only"
     metadata: dict[str, Any] = Field(default_factory=dict)
 

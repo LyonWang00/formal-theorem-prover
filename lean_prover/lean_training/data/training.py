@@ -15,6 +15,7 @@ from lean_prover.lean_training.data.preparation import (
     lean_code_tokens,
     percentile,
     proof_hash,
+    split_lean_statement_and_proof,
     statement_hash,
 )
 
@@ -33,24 +34,99 @@ def load_prepared_dataset(path: str) -> Dataset:
 def build_generation_prompt(
     example: NormalizedExample | Mapping[str, Any],
 ) -> str:
-    """Compose the proof-free prompt shared by SFT, GRPO, and evaluation."""
+    """Compose self-contained Lean input ending in the standard proof hole."""
 
     if isinstance(example, Mapping):
-        existing = example.get("prompt")
-        if isinstance(existing, str) and existing.strip():
-            return existing
-        informal_statement = str(example.get("informal_statement") or "").strip()
         lean_statement = str(example.get("lean_statement") or "").strip()
+        imports = tuple(str(value) for value in example.get("imports") or ())
+        context_lines = tuple(
+            str(value) for value in example.get("context_lines") or ()
+        )
+        unknown_preamble_lines = tuple(
+            str(value)
+            for value in example.get("unknown_preamble_lines") or ()
+        )
     else:
-        informal_statement = example.informal_statement.strip()
         lean_statement = example.lean_statement.strip()
-    return (
-        "### Informal statement\n"
-        f"{informal_statement}\n\n"
-        "### Lean statement\n"
-        f"{lean_statement}\n\n"
-        "### Lean proof\n"
+        imports = example.imports
+        context_lines = example.context_lines
+        unknown_preamble_lines = example.unknown_preamble_lines
+    if not lean_statement:
+        raise ValueError("cannot build a prompt without lean_statement")
+    try:
+        proof_free_statement, _ = split_lean_statement_and_proof(lean_statement)
+    except ValueError:
+        proof_free_statement = lean_statement
+    proof_free_statement = proof_free_statement.strip().removesuffix(":=").rstrip()
+    preamble: list[str] = []
+    for value in imports:
+        line = value.strip()
+        if line:
+            preamble.append(line if line.startswith("import ") else f"import {line}")
+    preamble.extend(line.strip() for line in context_lines if line.strip())
+    preamble.extend(
+        line.strip() for line in unknown_preamble_lines if line.strip()
     )
+    blocks = list(dict.fromkeys(preamble))
+    blocks.append(f"{proof_free_statement} := by sorry")
+    return "\n\n".join(blocks)
+
+
+def build_sft_general_data(example: NormalizedExample) -> dict[str, Any]:
+    """Build one model-independent, fully verified ``sft_manifest`` row."""
+
+    proof = normalize_sft_completion(
+        _require_reference_proof(example, workflow="SFT manifest")
+    )
+    _require_pantograph_attestation(example, workflow="SFT manifest")
+    return {
+        "schema_version": "sft_manifest",
+        "data_stage": "sft",
+        "split": "train",
+        "record_id": example.id,
+        "lean_statement": example.lean_statement.strip(),
+        "proof": proof,
+        "imports": list(example.imports),
+        "context_lines": list(example.context_lines),
+        "unknown_preamble_lines": list(example.unknown_preamble_lines),
+        "source": example.source,
+        "statement_hash": statement_hash(example.lean_statement),
+        "proof_hash": proof_hash(proof),
+        "pantograph_verified": True,
+        "verification_scope": "full_proof",
+        "metadata": {
+            "source_name": example.source_name or example.source,
+            "informal_statement": example.informal_statement,
+        },
+    }
+
+
+def build_grpo_general_data(example: NormalizedExample) -> dict[str, Any]:
+    """Build one model-independent ``grpo_manifest`` row with no proof fields."""
+
+    if example.proof.strip():
+        raise ValueError(
+            f"GRPO manifest example {example.id} contains a reference proof"
+        )
+    _require_pantograph_attestation(example, workflow="GRPO manifest")
+    return {
+        "schema_version": "grpo_manifest",
+        "data_stage": "grpo",
+        "split": "train",
+        "record_id": example.id,
+        "lean_statement": example.lean_statement.strip(),
+        "imports": list(example.imports),
+        "context_lines": list(example.context_lines),
+        "unknown_preamble_lines": list(example.unknown_preamble_lines),
+        "source": example.source,
+        "statement_hash": statement_hash(example.lean_statement),
+        "pantograph_verified": True,
+        "verification_scope": "statement_only",
+        "metadata": {
+            "source_name": example.source_name or example.source,
+            "informal_statement": example.informal_statement,
+        },
+    }
 
 
 def proof_length_metrics(proof: str) -> dict[str, int]:
@@ -64,35 +140,51 @@ def proof_length_metrics(proof: str) -> dict[str, int]:
     }
 
 
-def build_sft_training_record(example: NormalizedExample) -> dict[str, Any]:
-    """Build a supervised row containing prompt, theorem, and target proof."""
+def build_sft_training_record(example: NormalizedExample) -> dict[str, str]:
+    """Project one verified example onto the minimal trainer-facing SFT pair."""
 
-    proof = _require_reference_proof(example, workflow="SFT")
-    prompt = build_generation_prompt(example)
-    record = _base_prompt_record(example, prompt=prompt)
-    record.update(
-        {
-            "proof": proof,
-            "completion": proof,
-            "text": prompt + proof,
-            **_reference_proof_metadata(proof),
-        }
-    )
-    return record
+    proof = normalize_sft_completion(_require_reference_proof(example, workflow="SFT"))
+    _require_pantograph_attestation(example, workflow="SFT")
+    return {
+        "prompt": build_generation_prompt(example),
+        "completion": proof,
+    }
 
 
 def build_sft_evaluation_record(example: NormalizedExample) -> dict[str, Any]:
     """Build a proof-free row for generative SFT model evaluation."""
 
-    return _base_prompt_record(example, prompt=build_generation_prompt(example))
+    record = _base_prompt_record(
+        example,
+        prompt=build_generation_prompt(example),
+        verification_scope="statement_only",
+    )
+    record.update(
+        {
+            "schema_version": "evaluation_data",
+            "data_stage": "grpo",
+            "split": "train",
+        }
+    )
+    return record
 
 
 def build_grpo_training_record(example: NormalizedExample) -> dict[str, Any]:
-    """Build a proof-free GRPO row with only non-reversible reference metadata."""
+    """Build a proof-free GRPO row without reading reference-proof data."""
 
-    proof = _require_reference_proof(example, workflow="GRPO")
-    record = _base_prompt_record(example, prompt=build_generation_prompt(example))
-    record.update(_reference_proof_metadata(proof))
+    record = _base_prompt_record(
+        example,
+        prompt=build_generation_prompt(example),
+        verification_scope="statement_only",
+    )
+    record.update(
+        {
+            "schema_version": "grpo_data",
+            "data_stage": "grpo",
+            "split": "train",
+            "verification_scope": "statement_only",
+        }
+    )
     return record
 
 
@@ -144,6 +236,62 @@ def exclude_statement_overlaps(
         )
         target.append(record)
     return kept, excluded
+
+
+def training_record_dedup_key(
+    record: Mapping[str, Any],
+    *,
+    workflow: str,
+) -> tuple[str, ...]:
+    """Return the cross-file identity for a final SFT or GRPO record.
+
+    SFT identity includes both the normalized Lean statement and proof, so
+    alternative verified proofs of the same theorem remain available. GRPO is
+    statement-only and therefore deduplicates solely by normalized statement.
+    """
+
+    normalized_workflow = workflow.strip().lower()
+    statement = str(record.get("lean_statement") or "").strip()
+    if not statement:
+        raise ValueError("training record lacks lean_statement")
+    statement_key = statement_hash(statement)
+    if normalized_workflow == "grpo":
+        return (statement_key,)
+    if normalized_workflow != "sft":
+        raise ValueError(f"unsupported training workflow: {workflow!r}")
+    proof_field = str(record.get("proof") or "").strip()
+    completion_field = str(record.get("completion") or "").strip()
+    if (
+        proof_field
+        and completion_field
+        and proof_hash(proof_field) != proof_hash(completion_field)
+    ):
+        raise ValueError("SFT training record proof/completion mismatch")
+    proof = proof_field or completion_field
+    if not proof:
+        raise ValueError("SFT training record lacks proof/completion")
+    return (statement_key, proof_hash(proof))
+
+
+def deduplicate_training_records(
+    records: Iterable[Mapping[str, Any]],
+    *,
+    workflow: str,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Deduplicate already-normalized records across any number of source files."""
+
+    kept: list[dict[str, Any]] = []
+    duplicates: list[dict[str, Any]] = []
+    seen: set[tuple[str, ...]] = set()
+    for record in records:
+        materialized = dict(record)
+        key = training_record_dedup_key(materialized, workflow=workflow)
+        if key in seen:
+            duplicates.append(materialized)
+            continue
+        seen.add(key)
+        kept.append(materialized)
+    return kept, duplicates
 
 
 def filter_sft_records_by_token_length(
@@ -273,9 +421,11 @@ def _base_prompt_record(
     example: NormalizedExample,
     *,
     prompt: str,
+    verification_scope: str | None = None,
 ) -> dict[str, Any]:
     return {
         "id": example.id,
+        "record_id": example.id,
         "source": example.source,
         "data_kind": example.source,
         "source_name": example.source_name or example.source,
@@ -292,6 +442,9 @@ def _base_prompt_record(
             example.unknown_preamble_lines,
         ).to_json(),
         "pantograph_verified": example.pantograph_verified,
+        "verification_scope": verification_scope or (
+            "full_proof" if example.proof.strip() else "statement_only"
+        ),
     }
 
 
@@ -304,6 +457,28 @@ def _require_reference_proof(example: NormalizedExample, *, workflow: str) -> st
             f"{workflow} example {example.id} contains forbidden proof token"
         )
     return proof
+
+
+def normalize_sft_completion(proof: str) -> str:
+    """Normalize a valid Lean term into the trainer's ``by``-led completion."""
+
+    normalized = proof.strip()
+    if not normalized:
+        raise ValueError("SFT completion cannot be empty")
+    if normalized == "by" or normalized.startswith(("by ", "by\n")):
+        return normalized
+    return "by\n  exact " + normalized.replace("\n", "\n  ")
+
+
+def _require_pantograph_attestation(
+    example: NormalizedExample,
+    *,
+    workflow: str,
+) -> None:
+    if not example.pantograph_verified:
+        raise ValueError(
+            f"{workflow} example {example.id} is not Pantograph verified"
+        )
 
 
 def _reference_proof_metadata(proof: str) -> dict[str, Any]:

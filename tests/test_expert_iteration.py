@@ -14,6 +14,8 @@ from lean_prover.lean_training.data.contracts import make_attestation_id
 from lean_prover.lean_training.data.preparation import (
     ASSEMBLER_VERSION,
     NORMALIZATION_VERSION,
+    proof_hash,
+    statement_hash,
 )
 from lean_prover.lean_training.expert_iteration.banks import FailureBank, ProofBank
 from lean_prover.lean_training.expert_iteration.config import (
@@ -54,6 +56,7 @@ from lean_prover.lean_training.evaluation.benchmark import VllmGenerator
 from lean_prover.lean_training.sft_pipeline.trainer import (
     WeightedSFTTrainer,
     validate_pantograph_attestation,
+    validate_sft_manifest_projection,
 )
 from lean_prover.lean_training.verification.pool import (
     VerificationPool,
@@ -81,6 +84,7 @@ def prepared_row(row_id, statement, proof=None):
         "lean_statement": statement,
         "prompt": f"### Lean statement\n{statement}\n\n### Lean proof\n",
         "imports": ["Mathlib"],
+        "pantograph_verified": True,
     }
     if proof is not None:
         row.update({"proof": proof, "completion": proof})
@@ -232,13 +236,22 @@ def test_train_mix_weights_and_protected_roles(tmp_path):
         protected_statement_hashes=set(),
     )
     rows = [json.loads(line) for line in output.read_text().splitlines()]
+    manifest_rows = [
+        json.loads(line)
+        for line in (tmp_path / "manifest.jsonl").read_text().splitlines()
+    ]
+    assert all(set(row) == {"prompt", "completion", "sample_weight"} for row in rows)
     weights = {
-        source: sum(row["sample_weight"] for row in rows if row["expert_source"] == source)
+        source: sum(
+            row["sample_weight"]
+            for row in manifest_rows
+            if row["source_group"] == source
+        )
         for source in ("anchor", "current_expert")
     }
     assert weights == pytest.approx({"anchor": 0.5, "current_expert": 0.5})
     assert stats["examples_by_category"] == {"algebra": 1, "logic": 1}
-    assert all(row["id"] != "eval" for row in rows)
+    assert all(row["record_id"] != "eval" for row in manifest_rows)
     with pytest.raises(ValueError, match="protected"):
         build_iteration_train_dataset(
             train_seed_path=train_path,
@@ -534,6 +547,63 @@ def test_sft_attestation_is_bound_to_source_and_versions():
     row["assembled_source_hash"] = "tampered"
     with pytest.raises(ValueError, match="attestation_id"):
         validate_pantograph_attestation(Dataset.from_list([row]), name="train")
+
+
+def test_minimal_sft_projection_is_bound_to_verified_manifest(tmp_path):
+    prompt = "import Mathlib\n\ntheorem t : True := by sorry"
+    manifest_row = {
+        "schema_version": "sft_manifest",
+        "record_id": "t",
+        "data_stage": "sft",
+        "split": "train",
+        "lean_statement": "theorem t : True",
+        "proof": "by trivial",
+        "imports": ["Mathlib"],
+        "context_lines": [],
+        "unknown_preamble_lines": [],
+        "source": "unit",
+        "statement_hash": statement_hash("theorem t : True"),
+        "proof_hash": proof_hash("by trivial"),
+        "pantograph_verified": True,
+        "verification_scope": "full_proof",
+        "metadata": {"informal_statement": "True is provable."},
+    }
+    manifest_path = tmp_path / "train.manifest.jsonl"
+    write_jsonl_atomic(manifest_path, [manifest_row])
+    dataset = Dataset.from_list([{"prompt": prompt, "completion": "by trivial"}])
+    validate_sft_manifest_projection(
+        dataset,
+        manifest_file=manifest_path,
+        prompt_field="prompt",
+        completion_field="completion",
+        name="train",
+    )
+    bad = Dataset.from_list([{"prompt": prompt, "completion": "by simp"}])
+    with pytest.raises(ValueError, match="manifest proof"):
+        validate_sft_manifest_projection(
+            bad,
+            manifest_file=manifest_path,
+            prompt_field="prompt",
+            completion_field="completion",
+            name="train",
+        )
+    rich = Dataset.from_list(
+        [
+            {
+                "prompt": prompt,
+                "completion": "by trivial",
+                "lean_statement": "theorem t : True",
+            }
+        ]
+    )
+    with pytest.raises(ValueError, match="unexpected columns"):
+        validate_sft_manifest_projection(
+            rich,
+            manifest_file=manifest_path,
+            prompt_field="prompt",
+            completion_field="completion",
+            name="train",
+        )
 
 
 def test_statement_bucket_transitions_are_resumable():

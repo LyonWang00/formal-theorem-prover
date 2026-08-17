@@ -12,6 +12,14 @@ GRPO inputs intentionally contain a theorem statement and no proof target. SFT
 records require both a Lean statement and verified proof. EI records explicitly
 record whether a supplied proof was Pantograph-verified.
 
-`normalization.py` is a stable facade over the existing LeanWorkbook, miniF2F,
-and generic normalizers. Their implementation and behavior remain in
-`lean_training/data/preparation.py`.
+`normalization.py` is the stable facade over `lean_training/data/adapters/`:
+
+- LeanWorkbook SFT/trajectory reconstruction uses `adapters/lean_workbook.py`;
+- NuminaMath full-proof rows use `adapters/numinamath.py` for SFT;
+- NuminaMath and Kimina statement-only rows use `adapters/numinamath.py` and
+  `adapters/kimina.py` for GRPO;
+- verified miniF2F valid/test rows use `adapters/minif2f.py` and are benchmark-only;
+- LeanDojo reconstruction uses `adapters/leandojo.py`.
+
+GRPO adapters reject proof-bearing input fields and GRPO training projection
+never reads or emits reference-proof hashes or lengths.

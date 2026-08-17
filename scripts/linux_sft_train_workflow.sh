@@ -83,7 +83,7 @@ fi
 echo
 echo "==== prepare Lean-Workbook train data ===="
 echo "prepare_start=$(date -Is)"
-/usr/bin/time -f "prepare_elapsed_seconds=%e" "$PY" -m lean_prover.lean_training.prepare_datasets \
+/usr/bin/time -f "prepare_elapsed_seconds=%e" "$PY" -m lean_prover.lean_training.data.cli \
   --train_dataset_name lean-workbook \
   --train_sample_size "$SAMPLE_SIZE" \
   --train_output "$DATA_FILE" \

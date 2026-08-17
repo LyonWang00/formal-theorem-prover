@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from lean_prover.lean_training.data.contracts import DataState
-from lean_prover.lean_training.data.leandojo import (
+from lean_prover.lean_training.data.adapters.leandojo import (
     CorpusDeclaration,
     corpus_key,
     leandojo_prompt_statement,

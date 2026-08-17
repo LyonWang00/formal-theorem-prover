@@ -380,7 +380,7 @@ def check_flashinfer_sampler() -> dict[str, Any]:
 def check_pantograph_warmup(project_path: Path, timeout: int) -> dict[str, Any]:
     start = time.monotonic()
     try:
-        from lean_prover.lean_training.pantograph_verifier import (
+        from lean_prover.lean_training.verification.pantograph import (
             PantographTheoremVerifier,
         )
 

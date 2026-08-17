@@ -51,6 +51,16 @@ id_ed25519*
 /lean_prover/Dataset/raw_data/
 /lean_prover/Dataset/verified_data/
 /lean_prover/Dataset/quality_audit/
+/lean_prover/Dataset/manifest/*.json
+/lean_prover/Dataset/manifest/*.jsonl
+/lean_prover/Dataset/manifest/*.tmp
+!/lean_prover/Dataset/manifest/README.md
+/lean_prover/Dataset/final_data/*
+!/lean_prover/Dataset/final_data/README.md
+!/lean_prover/Dataset/final_data/.gitkeep
+/lean_prover/Dataset/experiment_result/*
+!/lean_prover/Dataset/experiment_result/README.md
+!/lean_prover/Dataset/experiment_result/.gitkeep
 
 # Model and optimizer artifacts
 *.safetensors

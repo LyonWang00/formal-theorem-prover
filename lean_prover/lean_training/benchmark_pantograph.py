@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from lean_prover.lean_training.pantograph_verifier import PantographTheoremVerifier
+from lean_prover.lean_training.verification.pantograph import PantographTheoremVerifier
 
 
 SIMPLE_THEOREM = "example : True := by\n  trivial"
