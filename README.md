@@ -183,41 +183,23 @@ and digests.
 
 The following whole-proof results are transcribed from the supplied comparison
 tables. Only the requested models and the 7B DeepSeek-Prover-V2 variants are
-included. Results for this project use 32 generated attempts per problem and,
-by project reporting convention, are shown with `±0.5%`.
+included. For each model, the table keeps only the reported sample budget
+closest to 32; when no 32-sample result is available, the nearest available
+budget is retained. Results for this project use 32 generated attempts per
+problem and, by project reporting convention, are shown with `±0.5%`.
 
 | Model | Model size | Sample budget | miniF2F-test |
 |---|---:|---:|---:|
 | **Ours-SFT** | 7B | 32 | **50.00% ± 0.5%** |
 | **Ours-RL** | 7B | 32 | **62.30% ± 0.5%** |
 | DeepSeek-Prover-V1.5-Base | 7B | 128 | 29.7% ± 0.5% |
-| DeepSeek-Prover-V1.5-Base | 7B | 3,200 | 39.2% |
-| DeepSeek-Prover-V1.5-Base | 7B | 6,400 | 42.2% |
 | DeepSeek-Prover-V1.5-SFT | 7B | 32 | 48.2% ± 0.6% |
-| DeepSeek-Prover-V1.5-SFT | 7B | 64 | 49.6% ± 0.7% |
-| DeepSeek-Prover-V1.5-SFT | 7B | 128 | 50.4% ± 0.4% |
-| DeepSeek-Prover-V1.5-SFT | 7B | 3,200 | 53.3% ± 0.5% |
-| DeepSeek-Prover-V1.5-SFT | 7B | 4 × 6,400 | 55.8% ± 0.7% |
-| DeepSeek-Prover-V1.5-SFT | 7B | 16 × 6,400 | 57.4% |
 | DeepSeek-Prover-V1.5-RL | 7B | 32 | 50.0% ± 0.5% |
-| DeepSeek-Prover-V1.5-RL | 7B | 64 | 50.7% ± 0.4% |
-| DeepSeek-Prover-V1.5-RL | 7B | 128 | 51.6% ± 0.5% |
-| DeepSeek-Prover-V1.5-RL | 7B | 3,200 | 54.9% ± 0.7% |
-| DeepSeek-Prover-V1.5-RL | 7B | 4 × 6,400 | 58.4% ± 0.6% |
-| DeepSeek-Prover-V1.5-RL | 7B | 16 × 6,400 | 60.2% |
-| DeepSeek-Prover-V2 (non-CoT) | 7B | 1 | 55.5% ± 1.4% |
 | DeepSeek-Prover-V2 (non-CoT) | 7B | 32 | 68.0% ± 0.5% |
-| DeepSeek-Prover-V2 (non-CoT) | 7B | 1,024 | 73.2% ± 0.5% |
-| DeepSeek-Prover-V2 (non-CoT) | 7B | 8,192 | 75.0% |
-| DeepSeek-Prover-V2 (CoT) | 7B | 1 | 58.6% ± 1.1% |
 | DeepSeek-Prover-V2 (CoT) | 7B | 32 | 75.6% ± 0.5% |
-| DeepSeek-Prover-V2 (CoT) | 7B | 1,024 | 79.9% ± 0.3% |
-| DeepSeek-Prover-V2 (CoT) | 7B | 8,192 | 82.0% |
 | Goedel-Prover-SFT | 7B | 25,600 | 64.7% |
 | Leanabell-Prover | 7B | 128 | 61.1% |
-| Kimina-Prover-Preview-Distill-7B | 7B | 1 | 52.5% |
 | Kimina-Prover-Preview-Distill-7B | 7B | 32 | 63.1% |
-| Kimina-Prover-Preview-Distill-7B | 7B | 1,024 | 70.8% |
 
 ## Detailed project results
 
