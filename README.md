@@ -197,7 +197,6 @@ problem and, by project reporting convention, are shown with `±0.5%`.
 | DeepSeek-Prover-V1.5-RL | 7B | 32 | 50.0% ± 0.5% |
 | DeepSeek-Prover-V2 (non-CoT) | 7B | 32 | 68.0% ± 0.5% |
 | DeepSeek-Prover-V2 (CoT) | 7B | 32 | 75.6% ± 0.5% |
-| Goedel-Prover-SFT | 7B | 25,600 | 64.7% |
 | Leanabell-Prover | 7B | 128 | 61.1% |
 | Kimina-Prover-Preview-Distill-7B | 7B | 32 | 63.1% |
 
