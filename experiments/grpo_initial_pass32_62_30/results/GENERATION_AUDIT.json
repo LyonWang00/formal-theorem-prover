@@ -1,0 +1,15 @@
+{
+  "schema": "grpo_two_phase_generation_audit_v1",
+  "status": "PASS",
+  "frozen_shards_sha256": "425c1a42d00493d81c362dcf49fa806e550390df4ea997b2a2a5faba3e163bbf",
+  "model_sums_sha256": "c24f8a561f8cb55bb2714fc5a2912b6dd3821dc5b54f20ee9d520e20c92ed945",
+  "problem_count": 244,
+  "attempt_count": 7808,
+  "attempts_per_problem": 32,
+  "finish_reason_counts": {
+    "length": 194,
+    "stop": 7614
+  },
+  "receipt_origin": "compute_grpo",
+  "execution_domain": "slurm_node_local"
+}

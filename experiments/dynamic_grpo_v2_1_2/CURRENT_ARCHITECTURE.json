@@ -1,0 +1,8 @@
+{
+  "schema": "dynamic_grpo_current_architecture_v1",
+  "architecture_version": "dynamic-grpo-v2.1.2",
+  "bundle_name": "project_source_dynamic_grpo_v2_1_2",
+  "active_contract": "DYNAMIC_RUN_CONTRACT_144.json",
+  "forbid_legacy_contract_activation": true,
+  "minimum_ddp_timeout_seconds": 3600
+}

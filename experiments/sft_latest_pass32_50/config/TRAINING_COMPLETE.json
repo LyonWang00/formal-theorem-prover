@@ -1,0 +1,16 @@
+{
+  "adapter_model_sha256": "f42748b2a37aa1e5c6374f1a6c238f5bc005cac6284852bd122b99817edd2a37",
+  "base_model": "/home/scc/bz22001004/projects/formal-theorem-prover/models/DeepSeek-Prover-V1.5-Base",
+  "epoch": 2.0,
+  "global_batch_size": 8,
+  "global_step": 18836,
+  "job_id": 53173,
+  "learning_rate": 0.0002,
+  "lora_alpha": 64,
+  "lora_r": 32,
+  "schema": "sft_main75344_lr2e4_training_complete_v1",
+  "status": "PASS",
+  "train_file": "/home/scc/bz22001004/datasets/formal-theorem-prover/sft_main_75344_20260902_v1/train_data.jsonl",
+  "train_manifest_file": "/home/scc/bz22001004/runs/sft-main75344-deepseekprover-r32-lr2e4-epoch2-20260903-v1/input/train_manifest_hf_compatible_v2.jsonl",
+  "trainer_state_sha256": "ac36a21bbba60f4cc675fb16de92c8574bff0946da2278b6049c3332c02d578d"
+}

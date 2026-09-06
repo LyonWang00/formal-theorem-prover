@@ -1,0 +1,68 @@
+{
+  "epoch": 2.0,
+  "evaluation_result_sha256": "6dd2877b8a72dd73478a9bd93018d21ab5cb7bb3933604af2bb6b662563e9201",
+  "files": [
+    {
+      "bytes": 1538,
+      "file": "README.md",
+      "sha256": "60a5310b9809c24288c5c31fba88ceca065470681c756558c0a27220b24d9011"
+    },
+    {
+      "bytes": 1163,
+      "file": "adapter_config.json",
+      "sha256": "b3bc0dfec592c1f1d7ccf277eec18f30ab96cf2e2086e9c84017c86e75a2f297"
+    },
+    {
+      "bytes": 299883760,
+      "file": "adapter_model.safetensors",
+      "sha256": "f42748b2a37aa1e5c6374f1a6c238f5bc005cac6284852bd122b99817edd2a37"
+    },
+    {
+      "bytes": 886,
+      "file": "chat_template.jinja",
+      "sha256": "8ba1ca9a4c606d3f324a0c800a5004ae2e08eea7e917e1cb04c6b38fb5feebfc"
+    },
+    {
+      "bytes": 2882,
+      "file": "sft_supervised_eos_contract.json",
+      "sha256": "23f7a25c3133c61a5394e1c4022ea4fd36cad29dabbd2d86f478ec0bf291d0fa"
+    },
+    {
+      "bytes": 98193,
+      "file": "sft_tokenization_diagnostics.json",
+      "sha256": "3a8ed50451f1532204e72ac4f35bd3d0e7e7dec08ae86225af28c06aac0be1d7"
+    },
+    {
+      "bytes": 7501329,
+      "file": "tokenizer.json",
+      "sha256": "2752e301739ec6598b2a511b2858dad08e0c6e57b988f215a79165f996ef3455"
+    },
+    {
+      "bytes": 341,
+      "file": "tokenizer_config.json",
+      "sha256": "b948bf587ced77d00048cbac1b7eff2951bb96cb9274c11dad1ba7bb127e7eb2"
+    },
+    {
+      "bytes": 574724,
+      "file": "trainer_state.json",
+      "sha256": "ac36a21bbba60f4cc675fb16de92c8574bff0946da2278b6049c3332c02d578d"
+    },
+    {
+      "bytes": 5777,
+      "file": "training_args.bin",
+      "sha256": "96b854ec13e440e7cce679ac29eca667471599df4f81e97ba408095a391bcf98"
+    },
+    {
+      "bytes": 2262,
+      "file": "training_config.json",
+      "sha256": "d56ee5b1cb5a2ad0dd24bab86564746ef973af3029331885eb3845e90687fc0c"
+    }
+  ],
+  "frozen_checkpoint": "/home/scc/bz22001004/runs/sft-main75344-deepseekprover-r32-lr2e4-epoch2-20260903-v1/frozen_checkpoint_step18836",
+  "global_step": 18836,
+  "schema": "sft_main75344_lr2e4_checkpoint_freeze_v1",
+  "sha256sums_sha256": "de5611455325cb44e77edc7f17cd7a5799b54200a4c25a4ea2fc0640482069b4",
+  "source_model": "/home/scc/bz22001004/runs/sft-main75344-deepseekprover-r32-lr2e4-epoch2-20260903-v1/model",
+  "status": "FROZEN",
+  "training_complete_sha256": "8f6f40a0a8c18b51f6ad64f396c7ec457cd627d5bb49615ba28de43263bccc9b"
+}

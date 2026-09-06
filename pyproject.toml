@@ -1,0 +1,32 @@
+[project]
+name = "lean-math-prover"
+version = "0.1.0"
+description = "SFT, GRPO, and evaluation tooling for Lean 4 proof models"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "openai>=2.0,<3",
+    "pantograph==0.3.15",
+    "psutil>=5,<8",
+    "pydantic>=2,<3",
+    "pyyaml>=6,<7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4,<9",
+]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["lean_prover*"]
+
+[tool.uv.sources]
+pantograph = { git = "https://github.com/stanford-centaur/PyPantograph", tag = "v0.3.15" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "lean_prover"]
+norecursedirs = ["tools", "models", ".venv"]
+pythonpath = ["."]

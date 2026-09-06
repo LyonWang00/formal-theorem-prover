@@ -1,0 +1,6 @@
+{
+  "architecture_version": "dynamic-grpo-v2.1.2",
+  "bundle_name": "project_source_dynamic_grpo_v2_1_2",
+  "immutable": true,
+  "schema": "dynamic_grpo_project_version_v1"
+}

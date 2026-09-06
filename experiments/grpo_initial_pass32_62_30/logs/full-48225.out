@@ -1,0 +1,51 @@
+TEST244_GATE PASS rows=244 split=test unique_ids=244 proof_fields=0
+{
+  "adapter": "/home/scc/bz22001004/runs/grpo-first5000-epoch2-20260829-v1/full/model",
+  "adapter_config_sha256": "b31ff40715b86ee25b63a8f17a3e2de09e5716cc0694806a7d9a4f9e81afc801",
+  "adapter_model_sha256": "0fac7c34af3895c0cc37f6469a418d03def3033af9d912ff490d613742749a49",
+  "base_model": "/home/scc/bz22001004/projects/formal-theorem-prover/models/DeepSeek-Prover-V1.5-Base",
+  "model_sums_sha256": "c24f8a561f8cb55bb2714fc5a2912b6dd3821dc5b54f20ee9d520e20c92ed945",
+  "output": "/var/tmp/bz22001004-minif2f-grpo-pass32-48225/merged-grpo-final",
+  "safe_merge": true,
+  "schema": "minif2f_grpo_adapter_safe_merge_v1",
+  "status": "PASS",
+  "torch_dtype": "bfloat16",
+  "weight_files": [
+    {
+      "bytes": 4915872232,
+      "name": "model-00001-of-00003.safetensors",
+      "sha256": "9d7c4b236899fc774c8b17ca9b1311618285698b48a7eef42e3fa565193d6727"
+    },
+    {
+      "bytes": 4947390864,
+      "name": "model-00002-of-00003.safetensors",
+      "sha256": "a7fe532825f3c3fcd238329cded5e2499a51a54f7a97938ed06f5084c77b3906"
+    },
+    {
+      "bytes": 3957500024,
+      "name": "model-00003-of-00003.safetensors",
+      "sha256": "6503791236c2aa86b8295eeaab50bd5f4684f6e4e9056cbf6cc3cc717a761f35"
+    }
+  ]
+}
+config.json: OK
+generation_config.json: OK
+model-00001-of-00003.safetensors: OK
+model-00002-of-00003.safetensors: OK
+model-00003-of-00003.safetensors: OK
+model.safetensors.index.json: OK
+{
+  "schema": "grpo_two_phase_generation_audit_v1",
+  "status": "PASS",
+  "frozen_shards_sha256": "425c1a42d00493d81c362dcf49fa806e550390df4ea997b2a2a5faba3e163bbf",
+  "model_sums_sha256": "c24f8a561f8cb55bb2714fc5a2912b6dd3821dc5b54f20ee9d520e20c92ed945",
+  "problem_count": 244,
+  "attempt_count": 7808,
+  "attempts_per_problem": 32,
+  "finish_reason_counts": {
+    "length": 194,
+    "stop": 7614
+  },
+  "receipt_origin": "compute_grpo",
+  "execution_domain": "slurm_node_local"
+}

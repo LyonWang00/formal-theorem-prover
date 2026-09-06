@@ -1,0 +1,86 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+
+# Python environments and local runtimes
+/.venv/
+/.venvs/
+/.runtime/
+/.vendor/
+/.downloads/
+/.elan/
+
+# Python caches
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.cache/
+*.py[cod]
+*.egg-info/
+
+# Lean caches and generated files
+**/.lake/
+*.olean
+*.ilean
+/lean_project/Generated/
+
+# Large project assets
+/models/
+/outputs/
+**/outputs/
+/data/
+/checkpoints/
+/archives/
+/logs/
+/cp/
+
+# Dataset payloads kept outside Git
+/lean_prover/Dataset/raw_data/
+/lean_prover/Dataset/verified_data/
+/lean_prover/Dataset/quality_audit/
+/lean_prover/Dataset/manifest/*.json
+/lean_prover/Dataset/manifest/*.jsonl
+/lean_prover/Dataset/manifest/*.tmp
+!/lean_prover/Dataset/manifest/README.md
+/lean_prover/Dataset/final_data/*
+!/lean_prover/Dataset/final_data/README.md
+!/lean_prover/Dataset/final_data/.gitkeep
+/lean_prover/Dataset/experiment_result/*
+!/lean_prover/Dataset/experiment_result/README.md
+!/lean_prover/Dataset/experiment_result/.gitkeep
+
+# Model and optimizer artifacts
+*.safetensors
+adapter_model.*
+optimizer.pt
+scheduler.pt
+rng_state*.pth
+pytorch_model*.bin
+*.ckpt
+
+# Large/generated dataset formats
+*.parquet
+*.arrow
+*.sqlite
+*.sqlite3
+
+# Build products and temporary files
+build/
+dist/
+*.orig
+*.rej
+*.bak
+*.swp
+*.swo
+
+# OS noise
+.DS_Store
+Thumbs.db

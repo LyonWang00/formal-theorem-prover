@@ -1,0 +1,223 @@
+{
+  "architecture_version": "dynamic-grpo-v2.1.2",
+  "bundle_name": "project_source_dynamic_grpo_v2_1_2",
+  "file_count": 43,
+  "files": [
+    {
+      "bytes": 12534,
+      "path": "adaptive_grpo_core.py",
+      "sha256": "48f1ba147101f1b9cf21fe29049e87a51785eaaba5537b71b1c7137741b6f34f"
+    },
+    {
+      "bytes": 14850,
+      "path": "adaptive_trainer.py",
+      "sha256": "1306c2f9e02a211618e5127585ce2889e8c9f5c4fb9541ef701f3ea7c9d9015b"
+    },
+    {
+      "bytes": 1582,
+      "path": "ARCHITECTURE.md",
+      "sha256": "10e78c6856483f4b56df1f10b9a7f9982a8a44789556bf561537b4dd461d39b5"
+    },
+    {
+      "bytes": 4505,
+      "path": "build_pass32_selection.py",
+      "sha256": "9f4b424bf49fc2e9f893ba61149dad53ec85baada88a058504836c5260b42c7a"
+    },
+    {
+      "bytes": 2674,
+      "path": "build_project_source.py",
+      "sha256": "903510228ce1071fe7755f626e4bdc940c5aa631835b7180b86d7a1627a22f38"
+    },
+    {
+      "bytes": 5540,
+      "path": "build_round56_selection.py",
+      "sha256": "ffed697d0c0f8684b89b93a2c8413b0b3409f123d653659f9b0212601031fe12"
+    },
+    {
+      "bytes": 4943,
+      "path": "build_topup_selection.py",
+      "sha256": "a750e4acfd50ee741f885a4eb6e618957bca90ad309380d33f4c13bad64f0659"
+    },
+    {
+      "bytes": 4898,
+      "path": "build_training_pool.py",
+      "sha256": "93045e2d5810a7cf07e509ed3de3cd86750dbd28ff11fd164f2b82a3d5212b8c"
+    },
+    {
+      "bytes": 22462,
+      "path": "cloud/analyze_corrected.py",
+      "sha256": "bf3fee20ebf8119b750ef57f2085cf2c824adb03c1b508a23fe8e36539b7a98d"
+    },
+    {
+      "bytes": 5310,
+      "path": "cloud/cloud_compile.sh",
+      "sha256": "5b52a0b36ff92fd760a64d70faa69b588ca384e6207f99d5d7955ac9f0a5ea38"
+    },
+    {
+      "bytes": 521,
+      "path": "cloud/cloud_start_compile.sh",
+      "sha256": "36ec9f96dde9fbda31481411643596ed98894bfbe20cd090ad7abd38bbf403d2"
+    },
+    {
+      "bytes": 297,
+      "path": "CURRENT_ARCHITECTURE.json",
+      "sha256": "6a463f4c9b07b3f03606bb1f8887db94447764f956be15be337d6650ea30bc18"
+    },
+    {
+      "bytes": 15251,
+      "path": "dynamic_cycle_controller.py",
+      "sha256": "7ecc464edc45b16871f798dd289a7415fda9f7eae3a182b3717c068a33d807b1"
+    },
+    {
+      "bytes": 21030,
+      "path": "dynamic_cycle_v2.py",
+      "sha256": "c283ca8e02dacca312c218f8e80c30b49355aa09f06c379d15c70b541e093faa"
+    },
+    {
+      "bytes": 1331,
+      "path": "DYNAMIC_RUN_CONTRACT_144.json",
+      "sha256": "ff27062533bd99d84afe952d38fb4d863ab4ec63029f84270305d094935d7232"
+    },
+    {
+      "bytes": 2876,
+      "path": "expand_training_budget.py",
+      "sha256": "c77efa517c7ca5b79b4ff6bf594b07ba3768b4227d1b3258ac43901baaa7fa40"
+    },
+    {
+      "bytes": 4046,
+      "path": "freeze_stage_shards.py",
+      "sha256": "c716e3781a98f22bb54c8b956d624d3f4bf6c7848664e5ea8353a223148a713f"
+    },
+    {
+      "bytes": 9975,
+      "path": "generate_eval_dynamic108.sbatch",
+      "sha256": "1f711b7f7f5d57a7a9765e621f6f970ce4db35e50ddf56af128dd176062386c5"
+    },
+    {
+      "bytes": 20427,
+      "path": "grpo_adaptive_remote.py",
+      "sha256": "9318dfe7dda58b82bc3c47cac641338e18eb5ed943c4caa5285bbe88547fbf30"
+    },
+    {
+      "bytes": 67610,
+      "path": "grpo_two_phase_bf16.py",
+      "sha256": "fcdf327a1ae9962b5687e7ac55f12fa31a854fa15426fb753892d0217fa0f731"
+    },
+    {
+      "bytes": 1583,
+      "path": "launch_cloud_compile_dynamic108.sh",
+      "sha256": "d807e89ce90f94e0cd79f8179604ff68d00f83b39154481a3f841d25fc42b165"
+    },
+    {
+      "bytes": 2856,
+      "path": "merge_capped_receipts.py",
+      "sha256": "9d849ffbdaac0ead1f03c66061abab44f3cac0dfb944d07ce293915d99f0dea0"
+    },
+    {
+      "bytes": 10604,
+      "path": "persistent_pantograph_service.py",
+      "sha256": "234c88f386d3c637173668354fbd06d994c1c70778ffbdff19684bbe4f1dc1a7"
+    },
+    {
+      "bytes": 32721,
+      "path": "pool_hard_timeout_e2.py",
+      "sha256": "e26212bc1ae30a51083c75ec76ff024d77d1e0b1262352c2633cacc6d3bb0486"
+    },
+    {
+      "bytes": 1231,
+      "path": "PROJECT_SOURCE_SPEC.json",
+      "sha256": "0dedc50383a8f0b23548354433273d6c506ea2867f9c73faacf9dfd9bef1d73a"
+    },
+    {
+      "bytes": 181,
+      "path": "PROJECT_VERSION.json",
+      "sha256": "7ad5d89d36af45c00820de71a939f1ef92bcd865f2ede2934165191dc9e7d618"
+    },
+    {
+      "bytes": 6069,
+      "path": "README.md",
+      "sha256": "c93b4a8cdbb117564e043eefa7e138c204ec0de096a1e62ae6e3294cf5840b3b"
+    },
+    {
+      "bytes": 1332,
+      "path": "recover_cloud_compile_stall.sh",
+      "sha256": "5b8731eaae0eba22c1735bd5b1be1ac090f877d3a2dc8ace6f6e402dd8c5a2e0"
+    },
+    {
+      "bytes": 8054,
+      "path": "route_rollouts.py",
+      "sha256": "a8448248ad548a84463f2445a3e574f948969f8df9713021e4b057cc7cba539d"
+    },
+    {
+      "bytes": 3590,
+      "path": "run_dynamic144_continuation.sbatch",
+      "sha256": "0fab997673bcd320b7675c1797513120f89ed713d659137ae2a01299a70cd5e3"
+    },
+    {
+      "bytes": 23713,
+      "path": "run_dynamic48_two_new_screens.sbatch",
+      "sha256": "5186c8ef1011147785e3fea9e8867f4aaf45b48132ef423ec196ac9cd44e3fca"
+    },
+    {
+      "bytes": 3329,
+      "path": "run_dynamic_resume108_to144.sbatch",
+      "sha256": "4ad7e3f13c80dab3ad5311046061a15c53a31e2d047867bad5252af2cf4fc37f"
+    },
+    {
+      "bytes": 2900,
+      "path": "run_dynamic_to108.sbatch",
+      "sha256": "401d185ba715dbe1031ad794b74bdc62ba7e68d06c58330954c73fc214f7272c"
+    },
+    {
+      "bytes": 650,
+      "path": "RUNTIME_DEPENDENCIES.json",
+      "sha256": "972b05fede2485ef7ac2bd006e14a204d2ef4afe5a075f2cab5150143023eaa3"
+    },
+    {
+      "bytes": 3837,
+      "path": "select_rollout_pool.py",
+      "sha256": "d3a4bf121fcaad9f07ba31191020a4a36f707eab8e702efe286950243f6fe967"
+    },
+    {
+      "bytes": 9455,
+      "path": "smoke_dynamic_cycle_v2.py",
+      "sha256": "dee06bff04a4c11e96156b165032199b00e7e5baff583cc06e3cfaf92cba74c2"
+    },
+    {
+      "bytes": 7028,
+      "path": "test_adaptive_grpo.py",
+      "sha256": "ff1f4ed7b3a8adc9e9ff1afd5b75eae35b3251fb8917d4089d413c9233387f8b"
+    },
+    {
+      "bytes": 1459,
+      "path": "test_cycle_stop_callback.py",
+      "sha256": "f5d942e3d92121fa3ea70fbf93980966b812c0ec09e0207928af833ea32be566"
+    },
+    {
+      "bytes": 5572,
+      "path": "test_dynamic_cycle_v2.py",
+      "sha256": "5162eca0686abc863f210562a71734d4bbbd13743945a152533fdee4744f96a1"
+    },
+    {
+      "bytes": 2680,
+      "path": "test_dynamic_trainer_preflight.py",
+      "sha256": "8b812e95925ed62293fd455869aaf45fb95c88880f42dc8c0b9d02e33533e99a"
+    },
+    {
+      "bytes": 3571,
+      "path": "train_dynamic_cycle.template.sh",
+      "sha256": "463b22b8efe055eae28eb0c90909743932dbe6f7aaabb0e7368d937c9410737f"
+    },
+    {
+      "bytes": 42559,
+      "path": "vendor/grpo_remote.py",
+      "sha256": "f1c3ba19ea2f2fc3f39a660694b14d6ffbcf5a44b3ff1aea055b24ea7027518e"
+    },
+    {
+      "bytes": 1568,
+      "path": "verify_project_source.py",
+      "sha256": "f181eafe5fc758248fc3ce90057f48b1265c8c643783e01c626c68974b2447fe"
+    }
+  ],
+  "schema": "cross_endpoint_source_manifest_v1"
+}

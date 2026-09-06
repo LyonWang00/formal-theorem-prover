@@ -1,0 +1,21 @@
+{
+  "attempt_count": 7808,
+  "compile_summary": {
+    "attempt_count": 7808,
+    "backend": "lean_cli_problem_grouped_prompt_bound_local_olean_v1",
+    "failure": 4852,
+    "launch": false,
+    "lean_library_dir_count": 16,
+    "problem_count": 244,
+    "receipt_count": 7808,
+    "schema": "minif2f_pass32_grouped_compile_summary_v1",
+    "status": "complete",
+    "success": 2956,
+    "timeout": 20,
+    "timeout_seconds_per_problem": 180,
+    "workers": 16
+  },
+  "problem_count": 244,
+  "schema": "minif2f_grpo_pass32_execution_complete_v10_grouped_sentinel_mathlib_prompt_bound_local_olean",
+  "status": "PASS"
+}

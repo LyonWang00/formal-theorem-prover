@@ -1,0 +1,23 @@
+{
+  "examples": {
+    "completion": [],
+    "pantograph_verified": [],
+    "prompt": [],
+    "proof_hash": [],
+    "schema_version": [],
+    "statement_hash": [],
+    "verification_scope": []
+  },
+  "issue_counts": {
+    "completion": 0,
+    "pantograph_verified": 0,
+    "prompt": 0,
+    "proof_hash": 0,
+    "schema_version": 0,
+    "statement_hash": 0,
+    "verification_scope": 0
+  },
+  "rows": 75344,
+  "schema": "sft_projection_contract_audit_v1",
+  "status": "PASS"
+}

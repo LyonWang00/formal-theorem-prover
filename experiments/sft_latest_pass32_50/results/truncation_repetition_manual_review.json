@@ -1,0 +1,42 @@
+{
+  "schema": "sft75344_lr2e4_truncation_repetition_manual_review_v1",
+  "status": "PASS",
+  "scope": {
+    "attempt_count": 7808,
+    "hit_max_new_tokens_count": 503,
+    "max_new_tokens": 2048
+  },
+  "criteria": {
+    "definite_tail_loop": "An exact repeated token or nonempty-line block continues to the 2048-token boundary, allowing only an incomplete final repeated unit.",
+    "probable_repetition_contribution": "A long exact repeated block consumes substantial output immediately before the boundary, but the model resumes non-repeated text before truncation.",
+    "not_causal": "The automatic detector finds repeated lines or blocks, but inspection shows finite case enumeration, ordinary tactic reuse, or repetition away from the truncated tail."
+  },
+  "definite_tail_loop_count": 8,
+  "definite_tail_loop_rate_within_truncated": 0.015904572564612324,
+  "definite_tail_loop_attempts": [
+    ["aime_1984_p7", 22],
+    ["imosl_2007_algebra_p6", 28],
+    ["mathd_numbertheory_435", 6],
+    ["aime_1999_p11", 28],
+    ["imo_1959_p1", 17],
+    ["imo_1974_p3", 21],
+    ["imo_1997_p5", 31],
+    ["mathd_numbertheory_320", 2]
+  ],
+  "probable_repetition_contribution_count": 2,
+  "probable_repetition_contribution_attempts": [
+    ["imo_1981_p6", 24],
+    ["numbertheory_x5neqy2p4", 20]
+  ],
+  "broad_causal_count": 10,
+  "broad_causal_rate_within_truncated": 0.019880715705765408,
+  "automatic_audit": {
+    "legacy_identical_line_run_ge4_count": 18,
+    "same_character_run_ge64_count": 0,
+    "exact_tail_token_loop_count": 4,
+    "exact_tail_line_loop_count": 10,
+    "automatic_union_count": 25,
+    "manual_not_causal_count": 15
+  },
+  "conclusion": "Eight of 503 truncations are definitely caused by a continuing repetition loop. Counting two nearby long loops that materially consumed the token budget gives a broader upper estimate of ten. The remaining truncations are not classified as repetition-caused."
+}

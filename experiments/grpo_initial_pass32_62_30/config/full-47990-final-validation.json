@@ -1,0 +1,109 @@
+{
+  "all_checks_pass": true,
+  "checks": {
+    "all_model_files_present": true,
+    "global_step_4160": true,
+    "loss_history_complete": true,
+    "no_duplicate_prefix_failures": true,
+    "no_import_or_module_failures": true,
+    "one_persistent_worker_per_rank": true,
+    "reward_rows_8320": true,
+    "rollout_batches_1040": true,
+    "rollout_history_complete": true,
+    "unique_problems_1034": true
+  },
+  "error_classes": {
+    "compiled": 367,
+    "forbidden_sorry_or_admit": 3,
+    "generated_syntax": 1604,
+    "generated_unknown_tactic": 195,
+    "other_compile_failure": 2680,
+    "sorry": 1323,
+    "timeout": 113,
+    "unsolved_goals": 2035
+  },
+  "gpu": {
+    "0": {
+      "memory_mib_mean": 21691.833,
+      "memory_mib_peak": 31386.0,
+      "power_w_mean": 194.129,
+      "samples": 3496,
+      "util_percent_mean": 60.903
+    },
+    "1": {
+      "memory_mib_mean": 21520.705,
+      "memory_mib_peak": 30896.0,
+      "power_w_mean": 205.793,
+      "samples": 3496,
+      "util_percent_mean": 57.93
+    },
+    "2": {
+      "memory_mib_mean": 21254.439,
+      "memory_mib_peak": 30906.0,
+      "power_w_mean": 189.002,
+      "samples": 3496,
+      "util_percent_mean": 63.323
+    },
+    "3": {
+      "memory_mib_mean": 21084.279,
+      "memory_mib_peak": 30896.0,
+      "power_w_mean": 198.88,
+      "samples": 3496,
+      "util_percent_mean": 61.826
+    }
+  },
+  "job_id": "47990",
+  "loss": {
+    "count": 4160,
+    "max": 2.294945240020752,
+    "mean": 0.008724515139161108,
+    "min": -0.8717737793922424,
+    "nonzero_count": 396
+  },
+  "model_files": {
+    "adapter_config.json": {
+      "path": "/home/scc/bz22001004/runs/grpo-first5000-epoch2-20260829-v1/full/model/adapter_config.json",
+      "sha256": "b31ff40715b86ee25b63a8f17a3e2de09e5716cc0694806a7d9a4f9e81afc801"
+    },
+    "adapter_model.safetensors": {
+      "path": "/home/scc/bz22001004/runs/grpo-first5000-epoch2-20260829-v1/full/model/adapter_model.safetensors",
+      "sha256": "0fac7c34af3895c0cc37f6469a418d03def3033af9d912ff490d613742749a49"
+    },
+    "trainer_state.json": {
+      "path": "/home/scc/bz22001004/runs/grpo-first5000-epoch2-20260829-v1/full/model/trainer_state.json",
+      "sha256": "52449d1666adea81ebd58d3133cbe569d29f5e0041e4eda3a3402c67d7dab0e3"
+    }
+  },
+  "reward_curve": {
+    "first_100_mean": 0.0175,
+    "last_100_mean": 0.09875,
+    "overall_mean": 0.044110576923076926,
+    "rollout_groups": 1040
+  },
+  "reward_rows": 8320,
+  "schema": "grpo_full_run_final_validation_v1",
+  "success_count": 367,
+  "summary_path": "/home/scc/bz22001004/runs/grpo-first5000-epoch2-20260829-v1/audit/full-47990-summary.json",
+  "summary_sha256": "0f26b033627f7e0d761c6b88b179b9edb5b7701b8d0bac92e5f08c3d3979ad5f",
+  "timing": {
+    "compile_wall_seconds_total_approx": 6885.0879,
+    "optimizer_update_seconds_median": 0.6606,
+    "optimizer_update_seconds_total_estimate": 2747.9589,
+    "rollout_generation_seconds_total_estimate": 7534.1369
+  },
+  "unique_problem_ids": 1034,
+  "worker_pids": {
+    "0": [
+      441810
+    ],
+    "1": [
+      461626
+    ],
+    "2": [
+      478836
+    ],
+    "3": [
+      495717
+    ]
+  }
+}

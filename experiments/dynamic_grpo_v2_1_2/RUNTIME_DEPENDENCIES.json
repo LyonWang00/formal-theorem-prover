@@ -1,0 +1,13 @@
+{
+  "schema": "dynamic_grpo_runtime_dependencies_v1",
+  "architecture_version": "dynamic-grpo-v2.1.2",
+  "dependencies": {
+    "grpo_two_phase.py": "a7247e82f37f0e63708e7df0f4341849140db73c29453d6d8a11253bd2d6f354",
+    "minif2f_full_split_verify_nowarm.py": "811e67b39b3726a4808b9e189e39fde0a80ed14da983cbb3990b198645a94d49",
+    "pool_hard_timeout.py": "6d50f0728574e3cb89b372dfa059b310bc435843d7c0c4680f300c37955dd10b",
+    "analyze_corrected.py": "bf3fee20ebf8119b750ef57f2085cf2c824adb03c1b508a23fe8e36539b7a98d",
+    "mathlib_commit": "5e932f97dd25535344f80f9dd8da3aab83df0fe6",
+    "lean_version": "4.29.1",
+    "vllm_version": "0.27.1"
+  }
+}

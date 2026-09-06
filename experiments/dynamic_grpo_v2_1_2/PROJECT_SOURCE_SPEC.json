@@ -1,0 +1,31 @@
+{
+  "schema": "cross_endpoint_project_source_spec_v1",
+  "architecture_version": "dynamic-grpo-v2.1.2",
+  "bundle_name": "project_source_dynamic_grpo_v2_1_2",
+  "root_patterns": ["*.py", "*.sh", "*.sbatch", "*.json", "*.md"],
+  "exclude_names": [
+    "SOURCE_MANIFEST.json",
+    "PROJECT_VERSION.json",
+    "DYNAMIC_RUN_CONTRACT_48.json",
+    "DYNAMIC_RUN_CONTRACT_V2.json",
+    "RUN_CONTRACT_149.json",
+    "generate_eval_adaptive149.sbatch",
+    "generate_pass16_topup.sbatch",
+    "rollout_pass8.sbatch",
+    "train_adaptive.template.sbatch",
+    "verify_pass16_topup.sbatch",
+    "verify_pass8_resume.sbatch",
+    "run_persistent_e2_to_r6_budget.sbatch",
+    "resume_dynamic48_after_format_fix.sh"
+  ],
+  "mapped_files": {
+    "vendor/grpo_remote.py": "../grpo_round67_20260904/grpo_remote.py",
+    "cloud/analyze_corrected.py": "../grpo_round67_20260904/analyze_corrected.py",
+    "cloud/cloud_compile.sh": "../grpo_round67_20260904/cloud_compile.sh",
+    "cloud/cloud_start_compile.sh": "../grpo_round67_20260904/cloud_start_compile.sh"
+  },
+  "excluded_runtime_classes": [
+    "checkpoints", "generated_rollouts", "compile_receipts", "logs",
+    "caches", "temporary_spools", "scheduler_state", "machine_environments"
+  ]
+}

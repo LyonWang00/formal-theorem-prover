@@ -1,0 +1,109 @@
+INFO 08-29 23:14:14 [api_utils.py:273] non-default args: {'tokenizer': '/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1', 'runner': 'generate', 'load_format': 'bitsandbytes', 'dtype': 'bfloat16', 'max_model_len': 4096, 'gpu_memory_utilization': 0.9, 'disable_log_stats': True, 'quantization': 'bitsandbytes', 'enforce_eager': True, 'model': '/var/tmp/bz22001004-minif2f-grpo-pass32-48225/merged-grpo-final'}
+WARNING 08-29 23:14:14 [envs.py:2128] Unknown vLLM environment variable detected: VLLM_ATTENTION_BACKEND
+WARNING 08-29 23:14:14 [arg_utils.py:1678] The global random seed is set to 0. Since VLLM_ENABLE_V1_MULTIPROCESSING is set to False, this may affect the random state of the Python process that launched vLLM.
+INFO 08-29 23:14:14 [model.py:645] Resolved architecture: LlamaForCausalLM
+INFO 08-29 23:14:14 [model.py:1883] Using max model len 4096
+INFO 08-29 23:14:14 [scheduler.py:242] Chunked prefill is enabled with max_num_batched_tokens=8192.
+WARNING 08-29 23:14:22 [vllm.py:1194] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 08-29 23:14:22 [vllm.py:1247] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 08-29 23:14:22 [kernel.py:306] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+INFO 08-29 23:14:22 [vllm.py:1426] Cudagraph is disabled under eager mode
+INFO 08-29 23:14:22 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant
+ERROR 08-29 23:14:22 [repo_utils.py:68] Error parsing config for /home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1: Unrecognized model in /home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1. Should have a `model_type` key in its config.json., retrying 1 of 2
+ERROR 08-29 23:14:24 [repo_utils.py:66] Error parsing config for /home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1: Unrecognized model in /home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1. Should have a `model_type` key in its config.json.
+INFO 08-29 23:14:26 [core.py:121] Initializing a V1 LLM engine (v0.27.1) with config: model='/var/tmp/bz22001004-minif2f-grpo-pass32-48225/merged-grpo-final', speculative_config=None, tokenizer='/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=bitsandbytes, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=bitsandbytes, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=/var/tmp/bz22001004-minif2f-grpo-pass32-48225/merged-grpo-final, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+INFO 08-29 23:14:27 [parallel_state.py:1640] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://11.11.10.1:37211 backend=nccl
+INFO 08-29 23:14:27 [parallel_state.py:1977] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+INFO 08-29 23:14:27 [gpu_worker.py:385] Using V2 Model Runner
+INFO 08-29 23:14:28 [model_runner.py:308] Loading model from scratch...
+INFO 08-29 23:14:39 [cuda.py:482] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+INFO 08-29 23:14:39 [flash_attn.py:789] Using FlashAttention version 2
+INFO 08-29 23:14:39 [bitsandbytes_loader.py:803] Loading weights with BitsAndBytes quantization. May take a while ...
+INFO 08-29 23:14:39 [weight_utils.py:867] Filesystem type for checkpoints: EXT4. Checkpoint size: 12.87 GiB. Available RAM: 437.11 GiB.
+INFO 08-29 23:14:39 [weight_utils.py:890] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+INFO 08-29 23:14:44 [model_runner.py:329] Model loading took 4.79 GiB and 16.238615 seconds
+INFO 08-29 23:14:44 [topk_topp_sampler.py:46] FlashInfer top-p/top-k sampling disabled via VLLM_USE_FLASHINFER_SAMPLER=0.
+INFO 08-29 23:14:48 [gpu_worker.py:563] Available KV cache memory: 22.31 GiB
+INFO 08-29 23:14:48 [kv_cache_utils.py:2235] GPU KV cache size: 48,720 tokens
+INFO 08-29 23:14:48 [kv_cache_utils.py:2236] Maximum concurrency for 4,096 tokens per request: 11.89x
+INFO 08-29 23:14:56 [kernel_warmup.py:256] Using FlashInfer autotune cache file: /home/scc/bz22001004/.cache/vllm/flashinfer_autotune_cache/flashinfer/0.6.16.post3/6c280335d32509238bee12b9317fbd37379f204ab575e45bd23ae2db27b4da3c/autotune_configs.json
+INFO 08-29 23:14:56 [gpu_worker.py:789] Free memory on device (30.86/31.36 GiB) on startup. Desired GPU memory utilization is (0.9, 28.22 GiB). Actual usage is 5.14 GiB for consumed memory (weights + non-torch), 0.78 GiB for peak activation, and 0.0 GiB for CUDAGraph memory. Replace gpu_memory_utilization config with `--kv-cache-memory=23796601959` (22.16 GiB) to fit into requested memory, or `--kv-cache-memory=26631597568` (24.8 GiB) to fully utilize gpu memory. Current kv cache memory in use is 22.31 GiB.
+INFO 08-29 23:15:04 [jit_monitor.py:79] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.
+INFO 08-29 23:15:05 [core.py:355] init engine (profile, create kv cache, warmup model) took 20.73 s
+INFO 08-29 23:15:06 [hf.py:540] Detected the chat template content format to be 'string'. You can set `--chat-template-content-format` to override this.
+{"rows":[{"actual_prompt_tokens":294,"frozen_prompt_tokens":294,"global_index":2},{"actual_prompt_tokens":324,"frozen_prompt_tokens":324,"global_index":6}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+WARNING 08-29 23:15:06 [jit_monitor.py:135] Triton kernel JIT compilation during inference: _topk_topp_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+{"rows":[{"actual_prompt_tokens":267,"frozen_prompt_tokens":267,"global_index":10},{"actual_prompt_tokens":302,"frozen_prompt_tokens":302,"global_index":14}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":241,"frozen_prompt_tokens":241,"global_index":18},{"actual_prompt_tokens":301,"frozen_prompt_tokens":301,"global_index":22}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":254,"frozen_prompt_tokens":254,"global_index":26},{"actual_prompt_tokens":229,"frozen_prompt_tokens":229,"global_index":30}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":239,"frozen_prompt_tokens":239,"global_index":34},{"actual_prompt_tokens":252,"frozen_prompt_tokens":252,"global_index":38}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":290,"frozen_prompt_tokens":290,"global_index":42},{"actual_prompt_tokens":231,"frozen_prompt_tokens":231,"global_index":46}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":299,"frozen_prompt_tokens":299,"global_index":50},{"actual_prompt_tokens":326,"frozen_prompt_tokens":326,"global_index":54}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":313,"frozen_prompt_tokens":313,"global_index":58},{"actual_prompt_tokens":230,"frozen_prompt_tokens":230,"global_index":62}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":291,"frozen_prompt_tokens":291,"global_index":66},{"actual_prompt_tokens":225,"frozen_prompt_tokens":225,"global_index":70}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":255,"frozen_prompt_tokens":255,"global_index":74},{"actual_prompt_tokens":230,"frozen_prompt_tokens":230,"global_index":78}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":304,"frozen_prompt_tokens":304,"global_index":82},{"actual_prompt_tokens":243,"frozen_prompt_tokens":243,"global_index":86}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":297,"frozen_prompt_tokens":297,"global_index":90},{"actual_prompt_tokens":276,"frozen_prompt_tokens":276,"global_index":94}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":215,"frozen_prompt_tokens":215,"global_index":98},{"actual_prompt_tokens":247,"frozen_prompt_tokens":247,"global_index":102}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":240,"frozen_prompt_tokens":240,"global_index":106},{"actual_prompt_tokens":237,"frozen_prompt_tokens":237,"global_index":110}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":234,"frozen_prompt_tokens":234,"global_index":114},{"actual_prompt_tokens":300,"frozen_prompt_tokens":300,"global_index":118}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":245,"frozen_prompt_tokens":245,"global_index":122},{"actual_prompt_tokens":227,"frozen_prompt_tokens":227,"global_index":126}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":244,"frozen_prompt_tokens":244,"global_index":130},{"actual_prompt_tokens":239,"frozen_prompt_tokens":239,"global_index":134}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":282,"frozen_prompt_tokens":282,"global_index":138},{"actual_prompt_tokens":193,"frozen_prompt_tokens":193,"global_index":142}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":234,"frozen_prompt_tokens":234,"global_index":146},{"actual_prompt_tokens":270,"frozen_prompt_tokens":270,"global_index":150}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":245,"frozen_prompt_tokens":245,"global_index":154},{"actual_prompt_tokens":233,"frozen_prompt_tokens":233,"global_index":158}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":218,"frozen_prompt_tokens":218,"global_index":162},{"actual_prompt_tokens":280,"frozen_prompt_tokens":280,"global_index":166}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":282,"frozen_prompt_tokens":282,"global_index":170},{"actual_prompt_tokens":255,"frozen_prompt_tokens":255,"global_index":174}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":219,"frozen_prompt_tokens":219,"global_index":178},{"actual_prompt_tokens":199,"frozen_prompt_tokens":199,"global_index":182}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":241,"frozen_prompt_tokens":241,"global_index":186},{"actual_prompt_tokens":255,"frozen_prompt_tokens":255,"global_index":190}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":221,"frozen_prompt_tokens":221,"global_index":194},{"actual_prompt_tokens":248,"frozen_prompt_tokens":248,"global_index":198}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":236,"frozen_prompt_tokens":236,"global_index":202},{"actual_prompt_tokens":268,"frozen_prompt_tokens":268,"global_index":206}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":237,"frozen_prompt_tokens":237,"global_index":210},{"actual_prompt_tokens":227,"frozen_prompt_tokens":227,"global_index":214}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":270,"frozen_prompt_tokens":270,"global_index":218},{"actual_prompt_tokens":242,"frozen_prompt_tokens":242,"global_index":222}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":244,"frozen_prompt_tokens":244,"global_index":226},{"actual_prompt_tokens":203,"frozen_prompt_tokens":203,"global_index":230}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":209,"frozen_prompt_tokens":209,"global_index":234},{"actual_prompt_tokens":220,"frozen_prompt_tokens":220,"global_index":238}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{"rows":[{"actual_prompt_tokens":243,"frozen_prompt_tokens":243,"global_index":242}],"schema":"grpo_runtime_tokenizer_count_gate_v1","status":"PASS","tokenizer_path":"/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1"}
+{
+  "schema": "grpo_generation_shard_complete_v1",
+  "status": "complete",
+  "shard_manifest": "/home/scc/bz22001004/runs/minif2f-grpo-pass32-20260829-v1/frozen4/shard_2.jsonl",
+  "shard_manifest_sha256": "b52774b39c6486ce9c767798583638baf39bddb59e94dac7ea8576cf01e6447e",
+  "data_sha256": "2a261e530c74c619507d4efd1b4e42cf7f1c7a19c8458880f223d61b41a02d24",
+  "model": "/var/tmp/bz22001004-minif2f-grpo-pass32-48225/merged-grpo-final",
+  "model_sums_sha256": "c24f8a561f8cb55bb2714fc5a2912b6dd3821dc5b54f20ee9d520e20c92ed945",
+  "problem_count": 61,
+  "attempt_count": 1952,
+  "pass_k": 32,
+  "generation_backend": "vllm",
+  "generation_scheduler": "continuous_waiting_queue",
+  "generation_batch_size": 2,
+  "generation_queue_depth": 2,
+  "runtime_versions": {
+    "vllm": "0.27.1",
+    "bitsandbytes": "0.49.2"
+  },
+  "quantization_audit": {
+    "backend": "bitsandbytes",
+    "installed_version": "0.49.2",
+    "install_marker_sha256": "1c92c3c58602661c741112eaa135965a5284cab96bf0855e22557baece0aee3f",
+    "loader_source_sha256": "cf2c10fcaf5b6e997a8d5f80712af1f251a7292b5d76813e28b39bc03fa7c629",
+    "linear_source_sha256": "9817c93811bde5967ee9eed1efa551b8fc9e857e59fbd1b033d16c82ca42f112",
+    "online_quant_type": "nf4",
+    "compress_statistics": true,
+    "double_quant_equivalent": true,
+    "matmul_compute_dtype": "bfloat16"
+  },
+  "max_new_tokens": 2048,
+  "model_max_length": 4096,
+  "effective_max_new_tokens_min": 2048,
+  "effective_max_new_tokens_max": 2048,
+  "context_capped_problem_count": 0,
+  "seed": 20260711,
+  "finish_reason_counts": {
+    "length": 38,
+    "stop": 1914
+  },
+  "chunks_sha256": "32e14aa8f4d6c9bae7203a2197104eb2a1788d3feca7939c2c90b93864adfc79",
+  "receipt_origin": "compute_grpo",
+  "execution_domain": "slurm_node_local"
+}

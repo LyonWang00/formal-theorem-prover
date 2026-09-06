@@ -1,0 +1,50 @@
+{
+  "analysis_path": "/home/scc/bz22001004/runs/sft-main75344-deepseekprover-r32-lr2e4-epoch2-20260903-v1/eval_pass32/final_analysis/analysis.json",
+  "analysis_sha256": "3f86105014ca2e19f9d1ba3c49727c8c152f85c84f4b2e4be01f23da45e81686",
+  "attempt_count": 7808,
+  "attempt_success_rate": 0.27061987704918034,
+  "compile_failure_count": 5695,
+  "compile_success_count": 2113,
+  "compile_timeout_count": 9,
+  "compile_timeout_seconds": 30,
+  "compile_workers": 4,
+  "length_truncation_count": 503,
+  "length_truncation_rate": 0.06442110655737705,
+  "model": "deepseek-prover-v1.5-base+sft-main75344-r32-a64-lr2e4-epoch2",
+  "pass_at_k_actual_prefix": {
+    "1": {
+      "count": 67,
+      "rate": 0.27459016393442626
+    },
+    "16": {
+      "count": 113,
+      "rate": 0.46311475409836067
+    },
+    "32": {
+      "count": 122,
+      "rate": 0.5
+    },
+    "4": {
+      "count": 89,
+      "rate": 0.36475409836065575
+    },
+    "8": {
+      "count": 103,
+      "rate": 0.42213114754098363
+    }
+  },
+  "pass_at_k_unbiased_estimator": {
+    "1": 0.27061987704918034,
+    "16": 0.466983868666285,
+    "32": 0.5,
+    "4": 0.3856845721110888,
+    "8": 0.4288484581828735
+  },
+  "problem_count": 244,
+  "schema": "sft_main75344_lr2e4_minif2f_test_pass32_result_v1",
+  "status": "PASS",
+  "strict_hallucinated_api_attempt_count": 1741,
+  "strict_hallucinated_api_attempt_rate": 0.2229764344262295,
+  "successful_attempt_count": 2113,
+  "worker_lifecycle": "persistent"
+}

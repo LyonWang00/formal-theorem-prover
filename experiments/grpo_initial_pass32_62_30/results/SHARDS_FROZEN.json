@@ -1,0 +1,55 @@
+{
+  "schema": "grpo_generation_shards_v1",
+  "status": "frozen",
+  "data": "full_test244_data.jsonl",
+  "data_sha256": "2a261e530c74c619507d4efd1b4e42cf7f1c7a19c8458880f223d61b41a02d24",
+  "manifest": "full_test244_manifest.jsonl",
+  "manifest_sha256": "090f38e0f0be9d6439f7e6afef4ad154bb82651be60c8ae1f35392c39c945c1a",
+  "audit": "full_test244_audit.json",
+  "audit_sha256": "8bef03cfb6b4f3ce811a8115e3ee499959aeb4c4614bc2e3019004d8acaa8389",
+  "problem_count": 244,
+  "attempts_per_problem": 32,
+  "expected_attempt_count": 7808,
+  "tokenizer_path": "/home/scc/bz22001004/runs/rollout-expand-20260824/contracts/deepseek-prover-v15-lean-whitespace-tokenizer-compat-v1",
+  "tokenizer_sums_sha256": "197a57bff74df59755134613ba1940a085c33412d63739750204842c60eedd02",
+  "max_model_len": 4096,
+  "max_new_tokens_ceiling": 2048,
+  "generation_backend": "vllm",
+  "generation_batch_size": 2,
+  "sampling_seed_base": 20260711,
+  "temperature": 1.0,
+  "top_p": 0.95,
+  "prompt_tokens_min": 192,
+  "prompt_tokens_max": 476,
+  "effective_max_new_tokens_min": 2048,
+  "effective_max_new_tokens_max": 2048,
+  "reduced_budget_problem_count": 0,
+  "assignment": "zero_based_authoritative_row_index_mod_shard_count",
+  "shard_count": 4,
+  "shards": [
+    {
+      "shard_index": 0,
+      "path": "shard_0.jsonl",
+      "count": 61,
+      "sha256": "86d8d94835a426c5062a0e3a485fbb04cd44f64a1263cfd8f189a221997cee0e"
+    },
+    {
+      "shard_index": 1,
+      "path": "shard_1.jsonl",
+      "count": 61,
+      "sha256": "19b7b1e7f8a8d1c930cee72cd43b6b4ea0fbbe4dbd3c5f326b2bdbfeaf5e9f58"
+    },
+    {
+      "shard_index": 2,
+      "path": "shard_2.jsonl",
+      "count": 61,
+      "sha256": "b52774b39c6486ce9c767798583638baf39bddb59e94dac7ea8576cf01e6447e"
+    },
+    {
+      "shard_index": 3,
+      "path": "shard_3.jsonl",
+      "count": 61,
+      "sha256": "c3a59dbca2c1f32116c3011a7ec405edebf78de47ce58967ba58673de6d0d65f"
+    }
+  ]
+}

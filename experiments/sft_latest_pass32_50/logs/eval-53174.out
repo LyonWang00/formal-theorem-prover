@@ -1,0 +1,179 @@
+EVAL_GATE PASS test244 adapter_step18836 lr2e-4 r32 alpha64
+{
+  "adapter": "/home/scc/bz22001004/runs/sft-main75344-deepseekprover-r32-lr2e4-epoch2-20260903-v1/model",
+  "adapter_config_sha256": "b3bc0dfec592c1f1d7ccf277eec18f30ab96cf2e2086e9c84017c86e75a2f297",
+  "adapter_model_sha256": "f42748b2a37aa1e5c6374f1a6c238f5bc005cac6284852bd122b99817edd2a37",
+  "base_model": "/home/scc/bz22001004/projects/formal-theorem-prover/models/DeepSeek-Prover-V1.5-Base",
+  "model_sums_sha256": "7b131cca33bdffa328b8a5df2fe4004ded20601e9cc31aab7b6cde51fcb4aac5",
+  "output": "/var/tmp/bz22001004-sft75344-lr2e4-pass32-53174/merged-sft75344",
+  "safe_merge": true,
+  "schema": "minif2f_grpo_adapter_safe_merge_v1",
+  "status": "PASS",
+  "torch_dtype": "bfloat16",
+  "weight_files": [
+    {
+      "bytes": 4915872232,
+      "name": "model-00001-of-00003.safetensors",
+      "sha256": "a0c53bdc18acdf378d51a67886cc61e801778632942dee6cad498b6c0a73f23f"
+    },
+    {
+      "bytes": 4947390864,
+      "name": "model-00002-of-00003.safetensors",
+      "sha256": "abd6dbdce473ca2ee3afb3757af2567f53c228a7ff28c52f17c5b01031f77231"
+    },
+    {
+      "bytes": 3957500024,
+      "name": "model-00003-of-00003.safetensors",
+      "sha256": "c4879b8af8145391b6e1b598e6ec8a673e7b0f8c86990d442a0f3003fc8da4e4"
+    }
+  ]
+}
+config.json: OK
+generation_config.json: OK
+model-00001-of-00003.safetensors: OK
+model-00002-of-00003.safetensors: OK
+model-00003-of-00003.safetensors: OK
+model.safetensors.index.json: OK
+{
+  "schema": "grpo_two_phase_generation_audit_v1",
+  "status": "PASS",
+  "frozen_shards_sha256": "425c1a42d00493d81c362dcf49fa806e550390df4ea997b2a2a5faba3e163bbf",
+  "model_sums_sha256": "7b131cca33bdffa328b8a5df2fe4004ded20601e9cc31aab7b6cde51fcb4aac5",
+  "problem_count": 244,
+  "attempt_count": 7808,
+  "attempts_per_problem": 32,
+  "finish_reason_counts": {
+    "length": 503,
+    "stop": 7305
+  },
+  "receipt_origin": "compute_grpo",
+  "execution_domain": "slurm_node_local"
+}
+{
+  "execution_domain": "slurm_node_local",
+  "frozen_shards_sha256": "425c1a42d00493d81c362dcf49fa806e550390df4ea997b2a2a5faba3e163bbf",
+  "generation_root": "/home/scc/bz22001004/runs/sft-main75344-deepseekprover-r32-lr2e4-epoch2-20260903-v1/eval_pass32/generation",
+  "grpo_entrypoint_sha256": "a7247e82f37f0e63708e7df0f4341849140db73c29453d6d8a11253bd2d6f354",
+  "manifest_sha256": "a5e8904563bb6d3a8937aa58e820810e65c9b1509a3991d7a37139eddc6a8b1e",
+  "model_sums_sha256": "7b131cca33bdffa328b8a5df2fe4004ded20601e9cc31aab7b6cde51fcb4aac5",
+  "problem_count": 244,
+  "receipt_origin": "compute_sft75344_lr2e4_minif2f",
+  "schema": "minif2f_pass32_full_split_compile_manifest_v1",
+  "selected_attempt_count": 7808,
+  "selected_attempt_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "source_attempts_per_problem": 32,
+  "status": "frozen"
+}
+OLEAN_PAGE_PREWARM_START root=/tmp/bz22001004/formal-theorem-prover-olean-v4.29.1 bytes=5875571277
+OLEAN_PAGE_PREWARM_COMPLETE seconds=3
+PANTOGRAPH_SERIAL_PREWARM {"ready_worker_count": 1, "ready_worker_id": 0, "runtime": {"fatal_errors": [], "heartbeat_interval": 5.0, "heartbeat_timeout": 30.0, "queue_maxsize": 256, "recovered_worker_failures": [], "start_method": "spawn", "workers": [{"alive": true, "generation": 0, "last_heartbeat_age_seconds": 0.0, "pid": 2722668, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 603.086, "state": "idle", "worker_id": 0}, {"alive": false, "generation": 0, "last_heartbeat_age_seconds": null, "pid": null, "post_startup_warmup_seconds": null, "restart_count": 0, "server_startup_seconds": null, "state": "starting", "worker_id": 1}, {"alive": false, "generation": 0, "last_heartbeat_age_seconds": null, "pid": null, "post_startup_warmup_seconds": null, "restart_count": 0, "server_startup_seconds": null, "state": "starting", "worker_id": 2}, {"alive": false, "generation": 0, "last_heartbeat_age_seconds": null, "pid": null, "post_startup_warmup_seconds": null, "restart_count": 0, "server_startup_seconds": null, "state": "starting", "worker_id": 3}]}, "target_worker_count": 4}
+PANTOGRAPH_SERIAL_PREWARM {"ready_worker_count": 2, "ready_worker_id": 1, "runtime": {"fatal_errors": [], "heartbeat_interval": 5.0, "heartbeat_timeout": 30.0, "queue_maxsize": 256, "recovered_worker_failures": [], "start_method": "spawn", "workers": [{"alive": true, "generation": 0, "last_heartbeat_age_seconds": 1.7692, "pid": 2722668, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 603.086, "state": "idle", "worker_id": 0}, {"alive": true, "generation": 0, "last_heartbeat_age_seconds": 0.0, "pid": 2753116, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 7.4674, "state": "idle", "worker_id": 1}, {"alive": false, "generation": 0, "last_heartbeat_age_seconds": null, "pid": null, "post_startup_warmup_seconds": null, "restart_count": 0, "server_startup_seconds": null, "state": "starting", "worker_id": 2}, {"alive": false, "generation": 0, "last_heartbeat_age_seconds": null, "pid": null, "post_startup_warmup_seconds": null, "restart_count": 0, "server_startup_seconds": null, "state": "starting", "worker_id": 3}]}, "target_worker_count": 4}
+PANTOGRAPH_SERIAL_PREWARM {"ready_worker_count": 3, "ready_worker_id": 2, "runtime": {"fatal_errors": [], "heartbeat_interval": 5.0, "heartbeat_timeout": 30.0, "queue_maxsize": 256, "recovered_worker_failures": [], "start_method": "spawn", "workers": [{"alive": true, "generation": 0, "last_heartbeat_age_seconds": 1.4221, "pid": 2722668, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 603.086, "state": "idle", "worker_id": 0}, {"alive": true, "generation": 0, "last_heartbeat_age_seconds": 2.1214, "pid": 2753116, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 7.4674, "state": "idle", "worker_id": 1}, {"alive": true, "generation": 0, "last_heartbeat_age_seconds": 0.0, "pid": 2753193, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 7.4144, "state": "idle", "worker_id": 2}, {"alive": false, "generation": 0, "last_heartbeat_age_seconds": null, "pid": null, "post_startup_warmup_seconds": null, "restart_count": 0, "server_startup_seconds": null, "state": "starting", "worker_id": 3}]}, "target_worker_count": 4}
+PANTOGRAPH_SERIAL_PREWARM {"ready_worker_count": 4, "ready_worker_id": 3, "runtime": {"fatal_errors": [], "heartbeat_interval": 5.0, "heartbeat_timeout": 30.0, "queue_maxsize": 256, "recovered_worker_failures": [], "start_method": "spawn", "workers": [{"alive": true, "generation": 0, "last_heartbeat_age_seconds": 1.0253, "pid": 2722668, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 603.086, "state": "idle", "worker_id": 0}, {"alive": true, "generation": 0, "last_heartbeat_age_seconds": 1.7247, "pid": 2753116, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 7.4674, "state": "idle", "worker_id": 1}, {"alive": true, "generation": 0, "last_heartbeat_age_seconds": 2.0179, "pid": 2753193, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 7.4144, "state": "idle", "worker_id": 2}, {"alive": true, "generation": 0, "last_heartbeat_age_seconds": 0.0, "pid": 2753207, "post_startup_warmup_seconds": 0.0, "restart_count": 0, "server_startup_seconds": 7.374, "state": "idle", "worker_id": 3}]}, "target_worker_count": 4}
+{
+  "compile_manifest_sha256": "a5e8904563bb6d3a8937aa58e820810e65c9b1509a3991d7a37139eddc6a8b1e",
+  "elapsed_seconds": 1986.0881,
+  "execution_domain": "slurm_node_local",
+  "failure_count": 5695,
+  "fatal_errors": [],
+  "prewarm_mode": "serial",
+  "receipt_count": 7808,
+  "receipt_origin": "compute_sft75344_lr2e4_minif2f",
+  "receipts_sha256": "89a61305b544a91a7d8a7e7819d35c919b882a23163dde6b8b3156214fd95b27",
+  "recovered_worker_failures": [],
+  "schema": "minif2f_pass32_split_compile_summary_v1",
+  "selected_attempt_count": 7808,
+  "status": "complete",
+  "success_count": 2113,
+  "timeout_count": 9,
+  "timeout_seconds": 30,
+  "warmup_reports": [
+    {
+      "backend": "pantograph",
+      "diagnostics": "warmup disabled",
+      "enabled": false,
+      "generation": 0,
+      "pid": 2722668,
+      "pool_restart_count": 0,
+      "post_startup_warmup_seconds": 0.0,
+      "server_startup_seconds": 603.086,
+      "success": true,
+      "timed_out": false,
+      "worker_id": 0
+    },
+    {
+      "backend": "pantograph",
+      "diagnostics": "warmup disabled",
+      "enabled": false,
+      "generation": 0,
+      "pid": 2753116,
+      "pool_restart_count": 0,
+      "post_startup_warmup_seconds": 0.0,
+      "server_startup_seconds": 7.4674,
+      "success": true,
+      "timed_out": false,
+      "worker_id": 1
+    },
+    {
+      "backend": "pantograph",
+      "diagnostics": "warmup disabled",
+      "enabled": false,
+      "generation": 0,
+      "pid": 2753193,
+      "pool_restart_count": 0,
+      "post_startup_warmup_seconds": 0.0,
+      "server_startup_seconds": 7.4144,
+      "success": true,
+      "timed_out": false,
+      "worker_id": 2
+    },
+    {
+      "backend": "pantograph",
+      "diagnostics": "warmup disabled",
+      "enabled": false,
+      "generation": 0,
+      "pid": 2753207,
+      "pool_restart_count": 0,
+      "post_startup_warmup_seconds": 0.0,
+      "server_startup_seconds": 7.374,
+      "success": true,
+      "timed_out": false,
+      "worker_id": 3
+    }
+  ],
+  "worker_lifecycle": "persistent",
+  "workers": 4
+}

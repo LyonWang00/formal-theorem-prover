@@ -1,0 +1,12 @@
+{
+  "attempt_count": 7808,
+  "compile_timeout_seconds": 30,
+  "frozen_shards_sha256": "425c1a42d00493d81c362dcf49fa806e550390df4ea997b2a2a5faba3e163bbf",
+  "model_sums_sha256": "7b131cca33bdffa328b8a5df2fe4004ded20601e9cc31aab7b6cde51fcb4aac5",
+  "problem_count": 244,
+  "schema": "minif2f_sft75344_lr2e4_pass32_execution_complete_v1",
+  "split": "test",
+  "status": "PASS",
+  "worker_lifecycle": "persistent",
+  "workers": 4
+}

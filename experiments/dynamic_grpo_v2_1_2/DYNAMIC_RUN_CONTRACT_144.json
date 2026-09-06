@@ -1,0 +1,47 @@
+{
+  "schema": "dynamic_adaptive_grpo_144step_contract_v2_1_2",
+  "architecture_version": "dynamic-grpo-v2.1.2",
+  "status": "ACTIVE",
+  "base_sft": "same_as_round1_to_round6",
+  "learning_rate": 0.00001,
+  "num_iterations": 2,
+  "total_optimizer_steps": 144,
+  "intermediate_evaluation_step": 108,
+  "cycle": {
+    "screen_problems": 512,
+    "screen_attempts_per_problem": 8,
+    "optimizer_steps": 16,
+    "training_problems_per_step": 16,
+    "training_slots": 256,
+    "unique_problem_within_cycle": true,
+    "repeat_field": 1,
+    "additional_screen_on_shortage": false
+  },
+  "reward": {
+    "fresh_current_cycle_rollout_only": true,
+    "history_selection_only": true,
+    "group_mean_centering": true,
+    "group_standard_deviation": false,
+    "lagged_cross_problem_rms": true,
+    "clip_higher": false,
+    "kl_penalty": false
+  },
+  "runtime": {
+    "world_size": 4,
+    "persistent_pantograph_workers": 4,
+    "lean_attempt_timeout_seconds": 60,
+    "ddp_timeout_seconds": 3600,
+    "checkpoint_commit_only": true
+  },
+  "evaluation": {
+    "split": "miniF2F-test",
+    "problems": 244,
+    "attempts_per_problem": 32,
+    "generation_host": "compute_rtx5090x4",
+    "compile_host": "cloud",
+    "compile_workers": 2,
+    "persistent_workers": true,
+    "serial_prewarm": true,
+    "attempt_timeout_seconds": 30
+  }
+}

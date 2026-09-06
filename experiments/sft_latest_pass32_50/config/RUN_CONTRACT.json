@@ -1,0 +1,66 @@
+{
+  "schema": "sft_main75344_lr2e4_run_contract_v1",
+  "created_at": "2026-09-03T12:04:19+08:00",
+  "status": "SUBMITTED_DEPENDENCY_CHAIN",
+  "run_root": "/home/scc/bz22001004/runs/sft-main75344-deepseekprover-r32-lr2e4-epoch2-20260903-v1",
+  "single_variable_change": {
+    "field": "learning_rate",
+    "prior_value": 0.00002,
+    "new_value": 0.0002
+  },
+  "dataset": {
+    "rows": 75344,
+    "train_file": "/home/scc/bz22001004/datasets/formal-theorem-prover/sft_main_75344_20260902_v1/train_data.jsonl",
+    "train_sha256": "080c9426a57bea3ac3cf287ba1acb7900532eda66af8256387101c75cbcdefdf",
+    "manifest_sha256": "cd8c2bea028672d3e6e6d902d844fbc0abb0c76efdf6b915e6a5c69b51ee3b93",
+    "training_manifest_projection_sha256": "e69bd07f416305c9a4f83289612f501a2030eac2ef812a3ba2b9c29d61228aa4",
+    "contains_repeat_field": false
+  },
+  "training": {
+    "base_model": "/home/scc/bz22001004/projects/formal-theorem-prover/models/DeepSeek-Prover-V1.5-Base",
+    "learning_rate": 0.0002,
+    "lora_r": 32,
+    "lora_alpha": 64,
+    "lora_dropout": 0.05,
+    "epochs": 2,
+    "global_batch_size": 8,
+    "expected_optimizer_steps": 18836,
+    "lr_scheduler_type": "linear",
+    "warmup_steps": 0,
+    "seed": 42,
+    "data_seed": 42,
+    "sampling": "trainer_default_without_replacement_with_deterministic_epoch_shuffle",
+    "script_sha256": "b769a4f5010b683c628f1bf4937bff26adc8af814ecb7582fd04125b17a7c46c"
+  },
+  "evaluation": {
+    "dataset": "miniF2F-test",
+    "problems": 244,
+    "attempts_per_problem": 32,
+    "attempts": 7808,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "max_new_tokens": 2048,
+    "compile_workers": 4,
+    "worker_lifecycle": "persistent",
+    "prewarm_mode": "serial",
+    "compile_timeout_seconds": 30,
+    "script_sha256": "2c45fc3032ea2701a5d519594c5d2170137e586d076ebdf7f8f02585f31c3477"
+  },
+  "jobs": {
+    "current_grpo_training": 53000,
+    "current_grpo_evaluation": "compute_generation_then_cloud_compile",
+    "current_grpo_compute_generation": 53165,
+    "current_grpo_compute_generation_dependency": "verified GRPO completion marker AND after:53061",
+    "current_grpo_cloud_compile": "/home/lean/experiments/formal-theorem-prover/grpo-numiter1-pass32-20260903-cloud",
+    "sft_initial_segment": 53061,
+    "sft_initial_segment_status": "stopped_at_complete_checkpoint_3900",
+    "sft_resume": 53173,
+    "sft_resume_checkpoint": "model/checkpoint-3900",
+    "sft_resume_dependency": "afterok:53165",
+    "sft_evaluation": 53174,
+    "sft_evaluation_dependency": "afterok:53173",
+    "checkpoint_freeze": 53175,
+    "checkpoint_freeze_dependency": "afterok:53174",
+    "cancelled_jobs": [52963, 53058, 53059, 53060, 53061, 53062, 53063, 53064]
+  }
+}

@@ -1,0 +1,29 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/273 [00:00<?, ?it/s]Loading weights:   5%|▍         | 13/273 [00:00<00:03, 76.40it/s]Loading weights:   8%|▊         | 22/273 [00:00<00:03, 76.08it/s]Loading weights:  11%|█         | 30/273 [00:00<00:03, 66.13it/s]Loading weights:  14%|█▎        | 37/273 [00:00<00:07, 30.97it/s]Loading weights:  16%|█▋        | 45/273 [00:01<00:06, 37.03it/s]Loading weights:  22%|██▏       | 61/273 [00:01<00:03, 57.85it/s]Loading weights:  26%|██▋       | 72/273 [00:01<00:03, 63.79it/s]Loading weights:  29%|██▉       | 80/273 [00:01<00:03, 52.36it/s]Loading weights:  33%|███▎      | 89/273 [00:01<00:04, 42.94it/s]Loading weights:  36%|███▌      | 98/273 [00:01<00:03, 48.04it/s]Loading weights:  38%|███▊      | 104/273 [00:02<00:05, 32.99it/s]Loading weights:  44%|████▍     | 121/273 [00:02<00:03, 48.13it/s]Loading weights:  47%|████▋     | 128/273 [00:02<00:02, 50.98it/s]Loading weights:  51%|█████▏    | 140/273 [00:02<00:02, 53.54it/s]Loading weights:  54%|█████▍    | 148/273 [00:03<00:02, 45.59it/s]Loading weights:  58%|█████▊    | 159/273 [00:03<00:02, 50.44it/s]Loading weights:  63%|██████▎   | 171/273 [00:03<00:01, 55.70it/s]Loading weights:  66%|██████▌   | 179/273 [00:03<00:01, 57.10it/s]Loading weights:  68%|██████▊   | 186/273 [00:03<00:01, 48.48it/s]Loading weights:  72%|███████▏  | 197/273 [00:03<00:01, 53.82it/s]Loading weights:  75%|███████▌  | 205/273 [00:04<00:01, 58.19it/s]Loading weights:  78%|███████▊  | 212/273 [00:04<00:01, 44.20it/s]Loading weights:  80%|████████  | 219/273 [00:04<00:01, 46.94it/s]Loading weights:  82%|████████▏ | 225/273 [00:04<00:01, 37.86it/s]Loading weights:  87%|████████▋ | 238/273 [00:04<00:00, 42.30it/s]Loading weights:  92%|█████████▏| 250/273 [00:05<00:00, 49.75it/s]Loading weights:  96%|█████████▌| 261/273 [00:05<00:00, 53.84it/s]Loading weights: 100%|██████████| 273/273 [00:05<00:00, 50.89it/s]
+Writing model shards:   0%|          | 0/3 [00:00<?, ?it/s]Writing model shards:  33%|███▎      | 1/3 [00:08<00:17,  8.89s/it]Writing model shards:  67%|██████▋   | 2/3 [00:11<00:05,  5.23s/it]Writing model shards: 100%|██████████| 3/3 [00:13<00:00,  3.78s/it]Writing model shards: 100%|██████████| 3/3 [00:13<00:00,  4.54s/it]
+LEAN_LOCAL_CACHE_READY root=/tmp/bz22001004/formal-theorem-prover-olean-v4.29.1 paths=8
+Error in Linarith.normalizeDenominatorsLHS: Expr.rewrite may not produce subgoals.
+Error in Linarith.normalizeDenominatorsLHS: Expr.rewrite may not produce subgoals.
+Error in Linarith.normalizeDenominatorsLHS: Expr.rewrite may not produce subgoals.
+Error in Linarith.normalizeDenominatorsLHS: Expr.rewrite may not produce subgoals.
+Error in Linarith.normalizeDenominatorsLHS: Expr.rewrite may not produce subgoals.
+Error in Linarith.normalizeDenominatorsLHS: Expr.rewrite may not produce subgoals.
+Error in Linarith.normalizeDenominatorsLHS: Expr.rewrite may not produce subgoals.
+Error in Linarith.normalizeDenominatorsLHS: Expr.rewrite may not produce subgoals.
+Error in Linarith.normalizeDenominatorsLHS: Expr.rewrite may not produce subgoals.
+Traceback (most recent call last):
+  File "/var/tmp/bz22001004-sft75344-lr2e4-pass32-53174/code/analyze_corrected.py", line 502, in <module>
+    main()
+  File "/var/tmp/bz22001004-sft75344-lr2e4-pass32-53174/code/analyze_corrected.py", line 385, in main
+    sft_receipts = load_sft_receipts(
+                   ^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/bz22001004-sft75344-lr2e4-pass32-53174/code/analyze_corrected.py", line 93, in load_sft_receipts
+    lines = path.read_text(encoding="utf-8").splitlines()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1029, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/scc/bz22001004/runs/minif2f-resume18688-pass32-20260827/pool_after_generation_final_v2_retry2/cohort1_receipts.jsonl'

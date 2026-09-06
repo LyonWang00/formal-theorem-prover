@@ -1,0 +1,23 @@
+* text=auto
+
+.gitattributes text eol=lf
+.gitignore text eol=lf
+.dockerignore text eol=lf
+.env.example text eol=lf
+Dockerfile text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.lean text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+
+# Frozen experiment source, contracts, results, and scheduler logs are
+# byte-for-byte provenance artifacts. Do not rewrite their line endings.
+/experiments/** -text
+
+*.ps1 text eol=crlf
+
+/tools/LeanDojo-v2/** linguist-vendored

@@ -1,0 +1,26 @@
+{"completed_problems":10,"receipt_count":320,"success":145}
+{"completed_problems":20,"receipt_count":640,"success":260}
+{"completed_problems":30,"receipt_count":960,"success":439}
+{"completed_problems":40,"receipt_count":1280,"success":646}
+{"completed_problems":50,"receipt_count":1600,"success":789}
+{"completed_problems":60,"receipt_count":1920,"success":838}
+{"completed_problems":70,"receipt_count":2240,"success":847}
+{"completed_problems":80,"receipt_count":2560,"success":938}
+{"completed_problems":90,"receipt_count":2880,"success":1005}
+{"completed_problems":100,"receipt_count":3200,"success":1192}
+{"completed_problems":110,"receipt_count":3520,"success":1378}
+{"completed_problems":120,"receipt_count":3840,"success":1436}
+{"completed_problems":130,"receipt_count":4160,"success":1509}
+{"completed_problems":140,"receipt_count":4480,"success":1653}
+{"completed_problems":150,"receipt_count":4800,"success":1799}
+{"completed_problems":160,"receipt_count":5120,"success":1992}
+{"completed_problems":170,"receipt_count":5440,"success":2131}
+{"completed_problems":180,"receipt_count":5760,"success":2224}
+{"completed_problems":190,"receipt_count":6080,"success":2278}
+{"completed_problems":200,"receipt_count":6400,"success":2380}
+{"completed_problems":210,"receipt_count":6720,"success":2507}
+{"completed_problems":220,"receipt_count":7040,"success":2780}
+{"completed_problems":230,"receipt_count":7360,"success":2931}
+{"completed_problems":240,"receipt_count":7680,"success":2934}
+{"attempt_count": 7808, "backend": "lean_cli_problem_grouped_prompt_bound_local_olean_v1", "failure": 4852, "launch": false, "lean_library_dir_count": 16, "problem_count": 244, "receipt_count": 7808, "schema": "minif2f_pass32_grouped_compile_summary_v1", "status": "complete", "success": 2956, "timeout": 20, "timeout_seconds_per_problem": 180, "workers": 16}
+EXECUTION_COMPLETE_CORRECTED_GROUPED_V5 PASS
